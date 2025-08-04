@@ -76,7 +76,7 @@ El objetivo es mejorar la sección principal donde se listan los titulares de se
 
 ### **Reto: Rediseño de UI y Paginación**
 
-Esta tarea tiene dos partes. Solo es necesario completar la primera.
+Esta tarea tiene dos partes.
 
 1.  **Implementación de Paginación en la Tabla:**
     
@@ -108,7 +108,7 @@ Aunque puedes usar cualquier herramienta (incluyendo IA) para ayudarte, el resul
     
 *   **Resolución de Problemas:** Cómo abordaste los desafíos, especialmente la implementación de la paginación.
     
-*   **Manejo de Git:** El historial de commits debe ser claro y la entrega se debe hacer mediante un Pull Request.
+*   **Manejo de Git:** El historial de commits debe ser simple pero claro y la entrega se debe hacer mediante un Pull Request.
     
 
 **Cómo Entregar tu Prueba**
