@@ -1,0 +1,1 @@
+DATABASE_URL="mysql://root:Deust1zero2@localhost:3306/test"
