@@ -74,7 +74,7 @@ La aplicación debería estar disponible en http://localhost:3000. Puedes inicia
 
 El objetivo es mejorar la sección principal donde se listan los titulares de seguros. Tienes dos áreas de enfoque.
 
-### **Reto Frontend: Rediseño de UI y Paginación**
+### **Reto: Rediseño de UI y Paginación**
 
 Esta tarea tiene dos partes. Solo es necesario completar la primera.
 
