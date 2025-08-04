@@ -50,7 +50,7 @@ git clone \[https://github.com/TU\_USUARIO/nombre-del-repositorio.git\](https://
 
 ### **3\. Variables de Entorno**
 
-Crea un archivo llamado .env.local en la raíz del proyecto y añade la siguiente variable. Asegúrate de que las credenciales coincidan con tu configuración de MySQL.
+Crea un archivo llamado .env en la raíz del proyecto y añade la siguiente variable. Asegúrate de que las credenciales coincidan con tu configuración de MySQL.
 
 DATABASE\_URL="mysql://root:usuario@localhost:3306/test"
 
