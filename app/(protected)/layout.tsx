@@ -11,8 +11,8 @@ import { ThemeProvider } from "@/components/theme-provider"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "CGM Sistema",
-  description: "Sistema de gestión para CGM",
+  title: "TEST Sistema",
+  description: "Sistema de gestión para TEST",
 }
 
 export default async function RootLayout({

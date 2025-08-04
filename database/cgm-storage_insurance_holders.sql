@@ -1,6 +1,6 @@
 -- MySQL dump 10.13  Distrib 8.0.38, for Win64 (x86_64)
 --
--- Host: 127.0.0.1    Database: cgm-storage
+-- Host: 127.0.0.1    Database: test
 -- ------------------------------------------------------
 -- Server version	8.0.38
 
@@ -55,13 +55,7 @@ CREATE TABLE `insurance_holders` (
   `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `clientId` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `ci` (`ci`),
-  KEY `idx_insurance_holders_ci` (`ci`),
-  KEY `idx_insurance_holders_policy` (`policyNumber`),
-  KEY `idx_insurance_holders_company` (`insuranceCompany`),
-  KEY `idx_insurance_holders_status` (`policyStatus`),
-  KEY `idx_insurance_holders_client` (`clientId`),
-  CONSTRAINT `insurance_holders_ibfk_1` FOREIGN KEY (`clientId`) REFERENCES `clients` (`id`) ON DELETE SET NULL
+  UNIQUE KEY `ci` (`ci`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -74,4 +68,4 @@ CREATE TABLE `insurance_holders` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-08-01 21:26:31
+-- Dump completed on 2025-08-04 17:08:28

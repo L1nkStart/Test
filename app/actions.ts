@@ -46,7 +46,7 @@ const caseSchema = z.object({
     ),
     cgmServiceCost: z.preprocess(
         (val) => (val === "" ? null : Number(val)),
-        z.number().min(0, "El costo de servicio CGM no puede ser negativo.").nullable().optional(),
+        z.number().min(0, "El costo de servicio test no puede ser negativo.").nullable().optional(),
     ),
     totalInvoiceAmount: z.preprocess(
         (val) => (val === "" ? null : Number(val)),

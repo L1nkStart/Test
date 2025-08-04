@@ -74,7 +74,7 @@ export async function DashboardHeader() {
         <SheetContent side="left">
           <Link className="flex items-center gap-2 font-semibold" href="#">
             <Package2Icon className="h-6 w-6" />
-            <span className="">CGM System</span>
+            <span className="">TEST System</span>
           </Link>
           <div className="grid gap-2 py-6">
             {filteredNavItems.map((item) => (

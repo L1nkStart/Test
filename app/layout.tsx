@@ -8,8 +8,8 @@ import { ThemeProvider } from "@/components/theme-provider"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "CGM Sistema de Gestión",
-  description: "Sistema de gestión de casos para CGM",
+  title: "TEST Sistema de Gestión",
+  description: "Sistema de gestión de casos para TEST",
 }
 
 export default async function RootLayout({
