@@ -1,0 +1,184 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Fuente general, si deseas usar otra, cámbiala aquí */
+body {
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+@layer base {
+  :root {
+    /* Colores del Modo Claro (predominantemente blancos y grises) */
+    --background: 0 0% 100%;
+    /* Blanco puro para el fondo principal */
+    --foreground: 220 10% 15%;
+    /* Gris oscuro para el texto principal (más suave que el negro) */
+
+    --card: 0 0% 100%;
+    /* Blanco puro para las tarjetas */
+    --card-foreground: 220 10% 15%;
+    /* Gris oscuro para el texto de las tarjetas */
+
+    --popover: 0 0% 100%;
+    /* Blanco puro para los popovers */
+    --popover-foreground: 220 10% 15%;
+    /* Gris oscuro para el texto de los popovers */
+
+    --primary: 220 13% 18%;
+    /* Azul marino oscuro/gris para elementos primarios (botones, etc.) */
+    --primary-foreground: 0 0% 98%;
+    /* Blanco casi puro para el texto sobre primary */
+
+    --secondary: 220 14% 96%;
+    /* Gris muy claro para elementos secundarios */
+    --secondary-foreground: 220 10% 15%;
+    /* Gris oscuro para el texto secundario */
+
+    --muted: 220 14% 96%;
+    /* Gris muy claro para elementos mutados/de baja importancia */
+    --muted-foreground: 220 8% 55%;
+    /* Gris medio para el texto mutado */
+
+    --accent: 220 14% 96%;
+    /* Gris muy claro para acentos visuales */
+    --accent-foreground: 220 10% 15%;
+    /* Gris oscuro para el texto de acento */
+
+    --destructive: 0 84.2% 60.2%;
+    /* Rojo estándar para acciones peligrosas */
+    --destructive-foreground: 0 0% 98%;
+    /* Blanco casi puro para el texto sobre destructive */
+
+    --border: 220 14% 90%;
+    /* Gris muy claro para bordes */
+    --input: 220 14% 90%;
+    /* Gris muy claro para bordes de inputs */
+    --ring: 220 13% 18%;
+    /* Color del anillo de enfoque (igual que primary) */
+
+    /* Colores para Gráficos (más neutros y profesionales) */
+    --chart-1: 220 70% 50%;
+    /* Azul medio */
+    --chart-2: 173 58% 39%;
+    /* Verde azulado */
+    --chart-3: 27 87% 67%;
+    /* Naranja apagado */
+    --chart-4: 43 74% 66%;
+    /* Amarillo mostaza suave */
+    --chart-5: 197 37% 24%;
+    /* Azul oscuro/grisáceo */
+
+    --radius: 0.5rem;
+    /* Radio de borde global, mantiene un estilo moderno */
+
+    /* Variables específicas para el Sidebar (ajustadas para el estilo blanco) */
+    --sidebar-background: 0 0% 100%;
+    /* Fondo blanco para el sidebar */
+    --sidebar-foreground: 220 10% 15%;
+    /* Texto principal gris oscuro en el sidebar */
+    --sidebar-primary: 220 13% 18%;
+    /* Color primario del sidebar (botones, iconos activos) */
+    --sidebar-primary-foreground: 0 0% 98%;
+    /* Texto blanco sobre sidebar-primary */
+    --sidebar-accent: 220 14% 96%;
+    /* Fondo de elementos activos/hover en sidebar */
+    --sidebar-accent-foreground: 220 10% 15%;
+    /* Color de texto para sidebar-accent */
+    --sidebar-border: 220 14% 90%;
+    /* Borde del sidebar */
+    --sidebar-ring: 220 13% 18%;
+    /* Anillo de enfoque del sidebar */
+  }
+
+  /* Modo Oscuro (Mantiene un esquema oscuro pero con tonos profesionales) */
+  .dark {
+    --background: 220 13% 10%;
+    /* Gris muy oscuro para el fondo */
+    --foreground: 220 14% 90%;
+    /* Gris claro para el texto */
+
+    --card: 220 13% 12%;
+    /* Gris oscuro para las tarjetas */
+    --card-foreground: 220 14% 90%;
+    /* Gris claro para el texto de las tarjetas */
+
+    --popover: 220 13% 12%;
+    /* Gris oscuro para los popovers */
+    --popover-foreground: 220 14% 90%;
+    /* Gris claro para el texto de los popovers */
+
+    --primary: 220 14% 90%;
+    /* Gris claro para elementos primarios en modo oscuro */
+    --primary-foreground: 220 13% 18%;
+    /* Gris oscuro para texto sobre primary */
+
+    --secondary: 220 13% 20%;
+    /* Gris medio para elementos secundarios */
+    --secondary-foreground: 220 14% 90%;
+    /* Gris claro para texto secundario */
+
+    --muted: 220 13% 20%;
+    /* Gris medio para elementos mutados */
+    --muted-foreground: 220 8% 60%;
+    /* Gris medio para el texto mutado */
+
+    --accent: 220 13% 20%;
+    /* Gris medio para acentos */
+    --accent-foreground: 220 14% 90%;
+    /* Gris claro para texto de acento */
+
+    --destructive: 0 62.8% 30.6%;
+    /* Rojo oscuro para destructivos */
+    --destructive-foreground: 0 0% 98%;
+    /* Blanco casi puro para texto destructivo */
+
+    --border: 220 13% 20%;
+    /* Gris medio para bordes */
+    --input: 220 13% 20%;
+    /* Gris medio para bordes de inputs */
+    --ring: 220 14% 90%;
+    /* Anillo de enfoque (igual que primary) */
+
+    /* Colores para Gráficos en Modo Oscuro */
+    --chart-1: 220 70% 70%;
+    --chart-2: 160 60% 65%;
+    --chart-3: 30 80% 75%;
+    --chart-4: 280 65% 80%;
+    --chart-5: 340 75% 75%;
+
+    /* Variables específicas para el Sidebar en Modo Oscuro */
+    --sidebar-background: 220 13% 12%;
+    /* Fondo gris oscuro para el sidebar */
+    --sidebar-foreground: 220 14% 90%;
+    /* Texto principal gris claro en el sidebar */
+    --sidebar-primary: 220 14% 90%;
+    /* Color primario del sidebar (elementos activos) */
+    --sidebar-primary-foreground: 220 13% 18%;
+    /* Texto oscuro sobre sidebar-primary */
+    --sidebar-accent: 220 13% 20%;
+    /* Fondo de elementos activos/hover en sidebar */
+    --sidebar-accent-foreground: 220 14% 90%;
+    /* Color de texto para sidebar-accent */
+    --sidebar-border: 220 13% 20%;
+    /* Borde del sidebar */
+    --sidebar-ring: 220 14% 90%;
+    /* Anillo de enfoque del sidebar */
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+}
