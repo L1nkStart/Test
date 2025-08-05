@@ -1,6 +1,6 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@config "../tailwind.config.ts";
+@import "tailwindcss";
+
 
 /* Fuente general, si deseas usar otra, cámbiala aquí */
 body {
