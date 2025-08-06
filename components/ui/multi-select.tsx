@@ -67,7 +67,7 @@ export function MultiSelect({
                                                 e.stopPropagation() // Evita que el clic en la X cierre el popover
                                                 handleSelect(value)
                                             }}
-                                            className="ml-1 rounded-full outline-none ring-offset-background focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                                            className="ml-1 rounded-full outline-hidden ring-offset-background focus:ring-2 focus:ring-ring focus:ring-offset-2"
                                         >
                                             <X className="h-3 w-3 text-muted-foreground hover:text-foreground" />
                                         </button>
@@ -81,7 +81,7 @@ export function MultiSelect({
                     <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                 </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
+            <PopoverContent className="w-(--radix-popover-trigger-width) p-0">
                 <Command>
                     <CommandInput placeholder="Buscar estado..." value={inputValue} onValueChange={setInputValue} />
                     <CommandList>

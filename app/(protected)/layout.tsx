@@ -1,7 +1,7 @@
 import type React from "react"
 import type { Metadata } from "next/types"
 import { Inter } from "next/font/google"
-import "./globals.css"
+import "../globals.css"
 import { AppSidebar } from "@/components/sidebar"
 import { DashboardHeader } from "@/components/dashboard-header"
 import { SidebarProvider } from "@/components/ui/use-sidebar" // Importa SidebarProvider
@@ -30,7 +30,7 @@ export default async function RootLayout({
           <AppSidebar userRole={session?.role || null} userEmail={session?.email || null} hide={false} />
           <div
             className="flex flex-1 flex-col min-h-svh bg-background w-full overflow-x-hidden
-                         md:group-[.peer]:data-[state=collapsed]:ml-[var(--sidebar-width-icon)]
+                         md:data-[state=collapsed]:group-[.peer]:ml-(--sidebar-width-icon)
                          transition-[margin-left] duration-200 ease-linear"
           >
             <DashboardHeader />
