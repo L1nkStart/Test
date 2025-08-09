@@ -1,5 +1,5 @@
 import { LayoutDashboard, BriefcaseMedical, Building2, DollarSign } from "lucide-react"
-import { NavSection } from "@/components/nav-interface"
+import { NavSection } from "@/components/interfaces/nav-interface"
 
 export const navSections: NavSection[] = [
     {

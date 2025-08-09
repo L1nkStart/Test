@@ -7,11 +7,12 @@ import { UserOptions } from '@/components/user-options'
 
 import { useIsMobile } from '@/hooks/use-mobile'
 
-import { navSections } from "@/components/nav-sections"
+import { navSections } from "@/components/interfaces/nav-sections"
 
-import { UserSession } from "@/lib/auth"
+import { useSession } from "@/components/session-provider"
 
-export function AppSidebar({ session }: { session: UserSession | null }) {
+export function AppSidebar() {
+  const session = useSession();
   const userRole = session?.role || "Invitado"
   const userEmail = session?.email || ""
   const isMobile = useIsMobile()

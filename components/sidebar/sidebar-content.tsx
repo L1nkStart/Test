@@ -23,7 +23,7 @@ import {
     CollapsibleTrigger,
 } from "@/components/ui/collapsible"
 
-import { NavSection } from "@/components/nav-interface"
+import { NavSection } from "@/components/interfaces/nav-interface"
 
 export function AppSidebarContent({
     items,

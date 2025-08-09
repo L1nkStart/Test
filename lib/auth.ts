@@ -2,6 +2,7 @@ import "server-only"
 import pool from "@/lib/db" // Importa el pool de conexiones
 import { getCookieSessionPayload } from "@/lib/session-utils" // Importa la función para obtener el payload de la cookie
 import { redirect } from "next/navigation"
+import { cache } from "react"
 
 export interface UserSession {
   id: string
@@ -15,7 +16,7 @@ export interface UserSession {
  * Obtiene la sesión completa del usuario consultando la base de datos.
  * Esta función solo debe usarse en Server Components o Route Handlers.
  */
-export async function getFullUserSession(): Promise<UserSession | null> {
+export const getFullUserSession = cache(async (): Promise<UserSession | null> =>{
   const sessionPayload = await getCookieSessionPayload() // Obtiene el payload mínimo de la cookie
 
   if (!sessionPayload?.id) {
@@ -45,7 +46,7 @@ export async function getFullUserSession(): Promise<UserSession | null> {
     console.error("Error fetching full user session from DB:", error)
     return null
   }
-}
+})
 
 /**
  * Verifica si el usuario tiene uno de los roles requeridos.

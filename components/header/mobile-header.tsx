@@ -7,10 +7,11 @@ import { AppSidebarContent } from "@/components/sidebar/sidebar-content"
 import { AppSidebarHeader } from "@/components/sidebar/sidebar-header"
 import { UserOptions } from "@/components/user-options"
 import { useIsMobile } from "@/hooks/use-mobile"
-import { navSections } from "@/components/nav-sections"
-import { UserSession } from "@/lib/auth"
+import { navSections } from "@/components/interfaces/nav-sections"
+import { useSession } from "@/components/session-provider"
 
-export function MobileHeader({ session }: { session: UserSession | null }) {
+export function MobileHeader() {
+  const session = useSession();
   const userRole = session?.role || "Invitado"
   const isMobile = useIsMobile()
 
