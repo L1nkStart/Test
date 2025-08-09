@@ -7,7 +7,6 @@ import { HoldersToolbar } from "@/components/holders/holders-toolbar"
 import { ActionsCell } from "@/components/holders/actions-cell"
 import { getFullUserSession } from "@/lib/auth"
 import { getInsuranceHoldersPage, getDistinctCompanies } from "@/lib/holders"
-import { EnterpriseTokens } from "@/components/enterprise-tokens"
 import { HoldersTable } from "@/components/holders/holders-table"
 
 export const metadata: Metadata = {
@@ -47,8 +46,6 @@ export default async function InsuranceHoldersPage({
 
   return (
     <main className="flex flex-1 flex-col gap-6 text-[13px]">
-      <EnterpriseTokens />
-
       <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
         <div className="space-y-1">
           <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight">Titulares de Seguro</h1>
@@ -60,27 +57,15 @@ export default async function InsuranceHoldersPage({
       </div>
 
       <section className="grid grid-cols-1 gap-4 md:grid-cols-4">
-        <Kpi title="Total Titulares" icon={<Shield className="h-4 w-4 text-muted-foreground" />} value={total} />
-        <Kpi
-          title="Pólizas Activas"
-          icon={<Shield className="h-4 w-4 text-emerald-600" />}
-          value={stats?.activePolicies ?? 0}
-        />
-        <Kpi
-          title="Total Pacientes"
-          icon={<Users className="h-4 w-4 text-muted-foreground" />}
-          value={stats?.totalPatients ?? 0}
-        />
-        <Kpi
-          title="Total Casos"
-          icon={<FileText className="h-4 w-4 text-muted-foreground" />}
-          value={stats?.totalCases ?? 0}
-        />
+        <Kpi title="Total Titulares" icon={<Shield className="h-4 w-4" />} value={total} />
+        <Kpi title="Pólizas Activas" icon={<Shield className="h-4 w-4" />} value={stats?.activePolicies ?? 0} />
+        <Kpi title="Total Pacientes" icon={<Users className="h-4 w-4" />} value={stats?.totalPatients ?? 0} />
+        <Kpi title="Total Casos" icon={<FileText className="h-4 w-4" />} value={stats?.totalCases ?? 0} />
       </section>
 
       <HoldersToolbar q={q} status={status} company={company} perPage={perPage} sort={sort} companies={companies} />
 
-      <Card className="overflow-hidden shadow-sm ent-card">
+      <Card className="overflow-hidden shadow-sm">
         <CardHeader className="pb-0">
           <div className="flex items-center justify-between">
             <CardTitle className="text-base">Listado de Titulares</CardTitle>
@@ -110,10 +95,10 @@ export default async function InsuranceHoldersPage({
 
 function Kpi({ title, icon, value }: { title: string; icon: React.ReactNode; value: number }) {
   return (
-    <Card className="shadow-sm ent-card">
+    <Card className="kpi-card">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="text-sm font-medium">{title}</CardTitle>
-        {icon}
+        <div className="kpi-icon">{icon}</div>
       </CardHeader>
       <CardContent>
         <div className="text-2xl font-semibold">{value}</div>

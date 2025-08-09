@@ -105,7 +105,7 @@ export function HoldersTable({ items, canManage }: { items: Holder[]; canManage:
 
       <div className="overflow-x-auto">
         <Table className="ent-compact">
-          <TableHeader className="sticky top-0 bg-background z-10">
+          <TableHeader className="sticky top-0 z-10 table-header-floating">
             <TableRow className="hover:bg-transparent">
               {visible.titular && <TableHead className="min-w-[220px]">Titular</TableHead>}
               {visible.contacto && <TableHead className="min-w-[200px]">Contacto</TableHead>}
@@ -157,7 +157,7 @@ export function HoldersTable({ items, canManage }: { items: Holder[]; canManage:
                         >
                           <div className="flex items-center gap-2">
                             <span className="font-medium">{h.name}</span>
-                            <Eye className="h-3.5 w-3.5 text-muted-foreground" />
+                            <Eye className="h-3.5 w-3.5 text-[hsl(var(--accent))]" />
                           </div>
                           <span className="text-muted-foreground text-xs">{h.ci}</span>
                         </button>
@@ -194,7 +194,7 @@ export function HoldersTable({ items, canManage }: { items: Holder[]; canManage:
                               {formatCurrency(used)} / {formatCurrency(max)}
                             </span>
                           </div>
-                          <Progress value={pct} className="h-2" />
+                          <Progress value={pct} className="h-2.5 rounded-full" />
                         </div>
                       </TableCell>
                     )}
@@ -234,13 +234,13 @@ function StatusBadge({ status }: { status?: string | null }) {
   const s = (status || "").toLowerCase()
   const cls =
     s === "activo"
-      ? "bg-emerald-100 text-emerald-800 border-emerald-200"
+      ? "bg-[hsl(var(--success))]/15 text-[hsl(var(--success))] border-[hsl(var(--success))]/20"
       : s === "suspendido"
-        ? "bg-amber-100 text-amber-800 border-amber-200"
+        ? "bg-[hsl(var(--warning))]/15 text-[hsl(var(--warning))] border-[hsl(var(--warning))]/25"
         : s === "vencido"
           ? "bg-orange-100 text-orange-800 border-orange-200"
           : s === "cancelado"
-            ? "bg-red-100 text-red-800 border-red-200"
+            ? "bg-[hsl(var(--danger))]/15 text-[hsl(var(--danger))] border-[hsl(var(--danger))]/25"
             : "bg-gray-100 text-gray-800 border-gray-200"
   return (
     <Badge variant="outline" className={cn("capitalize", cls)}>

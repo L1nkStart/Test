@@ -69,7 +69,7 @@ export function HoldersToolbar({
     <div className="flex flex-col gap-3 rounded-lg border bg-card p-3 md:flex-row md:items-end md:justify-between md:p-4">
       <div className="grid w-full grid-cols-1 gap-3 md:grid-cols-4">
         <div className="relative md:col-span-2">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[hsl(var(--accent))]" />
           <Input
             placeholder="Buscar por nombre, cédula, teléfono, email o póliza"
             value={q}
@@ -150,7 +150,6 @@ export function HoldersToolbar({
               aria-label={`Quitar ${chip.key}`}
               onClick={() => {
                 chip.onClear()
-                // mantener sincrónico el URL al remover chip
                 setTimeout(() => applyFilters(1), 0)
               }}
               title="Quitar filtro"

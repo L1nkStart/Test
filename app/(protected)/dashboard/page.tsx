@@ -47,24 +47,16 @@ export default async function DashboardPage() {
 
       {/* KPIs + últimos 7 días */}
       <section className="grid grid-cols-1 gap-4 md:grid-cols-5">
-        <Kpi title="Total Titulares" icon={<Shield className="h-4 w-4 text-muted-foreground" />} value={holders} />
-        <Kpi title="Pólizas Activas" icon={<TrendingUp className="h-4 w-4 text-emerald-600" />} value={active} />
+        <Kpi title="Total Titulares" icon={<Shield className="h-4 w-4" />} value={holders} />
+        <Kpi title="Pólizas Activas" icon={<TrendingUp className="h-4 w-4" />} value={active} />
         <Kpi
           title="Cobertura Usada"
-          icon={<Users className="h-4 w-4 text-muted-foreground" />}
+          icon={<Users className="h-4 w-4" />}
           valueLabel={`${formatCurrency(totalUsed)} / ${formatCurrency(totalMax)}`}
           progress={usedPct}
         />
-        <Kpi
-          title="Creados (7d)"
-          icon={<CalendarClock className="h-4 w-4 text-muted-foreground" />}
-          value={summary.totals.created7d}
-        />
-        <Kpi
-          title="Actualizados (7d)"
-          icon={<CalendarClock className="h-4 w-4 text-muted-foreground" />}
-          value={summary.totals.updated7d}
-        />
+        <Kpi title="Creados (7d)" icon={<CalendarClock className="h-4 w-4" />} value={summary.totals.created7d} />
+        <Kpi title="Actualizados (7d)" icon={<CalendarClock className="h-4 w-4" />} value={summary.totals.updated7d} />
       </section>
 
       <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
@@ -72,7 +64,7 @@ export default async function DashboardPage() {
         <Card className="xl:col-span-1">
           <CardHeader className="flex items-center justify-between">
             <CardTitle className="text-base flex items-center gap-2">
-              <BarChart3 className="h-4 w-4 text-muted-foreground" />
+              <BarChart3 className="h-4 w-4 text-[hsl(var(--accent))]" />
               Distribución por estado
             </CardTitle>
           </CardHeader>
@@ -97,7 +89,7 @@ export default async function DashboardPage() {
               summary.topCompanies.map((c) => (
                 <div key={c.name} className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <Building2 className="h-4 w-4 text-muted-foreground" />
+                    <Building2 className="h-4 w-4 text-[hsl(var(--accent))]" />
                     <span className="text-sm">{c.name}</span>
                   </div>
                   <div className="flex items-center gap-2">
@@ -123,7 +115,7 @@ export default async function DashboardPage() {
           <CardContent className="p-0">
             <div className="overflow-x-auto">
               <Table>
-                <TableHeader className="bg-muted/30">
+                <TableHeader className="bg-muted/30 table-header-floating">
                   <TableRow>
                     <TableHead>Titular</TableHead>
                     <TableHead>Compañía</TableHead>
@@ -168,7 +160,7 @@ export default async function DashboardPage() {
         <CardContent className="p-0">
           <div className="overflow-x-auto">
             <Table>
-              <TableHeader className="bg-muted/30">
+              <TableHeader className="bg-muted/30 table-header-floating">
                 <TableRow>
                   <TableHead className="min-w-[220px]">Titular</TableHead>
                   <TableHead className="min-w-[180px]">Contacto</TableHead>
@@ -221,7 +213,7 @@ export default async function DashboardPage() {
                                 {formatCurrency(used)} / {formatCurrency(max)}
                               </span>
                             </div>
-                            <Progress value={pct} className="h-2" />
+                            <Progress value={pct} className="h-2.5 rounded-full" />
                           </div>
                         </TableCell>
                       </TableRow>
@@ -251,15 +243,15 @@ function Kpi({
   progress?: number
 }) {
   return (
-    <Card className="shadow-sm">
+    <Card className="kpi-card">
       <CardHeader className="flex items-center justify-between space-y-0 pb-2">
         <CardTitle className="text-sm font-medium">{title}</CardTitle>
-        {icon}
+        <div className="kpi-icon">{icon}</div>
       </CardHeader>
       <CardContent className="space-y-2">
         {typeof value === "number" ? <div className="text-2xl font-semibold">{value}</div> : null}
         {valueLabel ? <div className="text-sm text-muted-foreground">{valueLabel}</div> : null}
-        {typeof progress === "number" ? <Progress value={progress} className="h-2" /> : null}
+        {typeof progress === "number" ? <Progress value={progress} className="h-2.5 rounded-full" /> : null}
       </CardContent>
     </Card>
   )
@@ -268,10 +260,10 @@ function Kpi({
 function StatusBarChart({ data }: { data: Array<{ status: string; count: number }> }) {
   const max = Math.max(1, ...data.map((d) => d.count || 0))
   const colors: Record<string, string> = {
-    Activo: "bg-emerald-500",
-    Suspendido: "bg-amber-500",
+    Activo: "bg-[hsl(var(--success))]",
+    Suspendido: "bg-[hsl(var(--warning))]",
     Vencido: "bg-orange-500",
-    Cancelado: "bg-red-500",
+    Cancelado: "bg-[hsl(var(--danger))]",
   }
   return (
     <div className="space-y-3">
@@ -297,13 +289,13 @@ function StatusBadge({ status }: { status?: string | null }) {
   const s = (status || "").toLowerCase()
   const cls =
     s === "activo"
-      ? "bg-emerald-100 text-emerald-800 border-emerald-200"
+      ? "bg-[hsl(var(--success))]/15 text-[hsl(var(--success))] border-[hsl(var(--success))]/20"
       : s === "suspendido"
-        ? "bg-amber-100 text-amber-800 border-amber-200"
+        ? "bg-[hsl(var(--warning))]/15 text-[hsl(var(--warning))] border-[hsl(var(--warning))]/25"
         : s === "vencido"
           ? "bg-orange-100 text-orange-800 border-orange-200"
           : s === "cancelado"
-            ? "bg-red-100 text-red-800 border-red-200"
+            ? "bg-[hsl(var(--danger))]/15 text-[hsl(var(--danger))] border-[hsl(var(--danger))]/25"
             : "bg-gray-100 text-gray-800 border-gray-200"
   return (
     <Badge variant="outline" className={cls + " capitalize"}>
@@ -314,8 +306,8 @@ function StatusBadge({ status }: { status?: string | null }) {
 
 function badgeByDays(daysLeft: number | null) {
   if (daysLeft == null) return "secondary"
-  if (daysLeft <= 7) return "destructive"
-  if (daysLeft <= 14) return "default"
+  if (daysLeft <= 7) return "destructive" /* rojo */
+  if (daysLeft <= 14) return "default" /* gris */
   return "secondary"
 }
 
