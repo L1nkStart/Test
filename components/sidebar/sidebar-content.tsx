@@ -23,19 +23,7 @@ import {
     CollapsibleTrigger,
 } from "@/components/ui/collapsible"
 
-interface NavItem {
-    title: string
-    href: string
-    roles: string[]
-}
-
-interface NavSection {
-    title: string
-    items: NavItem[]
-    icon: React.ElementType
-    expandable?: boolean
-    isActive?: boolean
-}
+import { NavSection } from "@/components/nav-interface"
 
 export function AppSidebarContent({
     items,
