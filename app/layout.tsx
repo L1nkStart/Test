@@ -21,7 +21,7 @@ export default async function RootLayout({
     <html lang="es" suppressHydrationWarning>
       <body className={inter.className}>
         {/* <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange> */}
-        <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-6">{children}</main>
+        {children}
         <Toaster />
         {/* </ThemeProvider> */}
       </body>
