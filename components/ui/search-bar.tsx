@@ -24,20 +24,16 @@ export function SearchBar() {
     }, 300);
 
     return (
-        <Card>
-            <CardContent className="p-4">
-                <div className="relative">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                    <Input
-                        placeholder="Buscar por nombre, cédula, teléfono, email o número de póliza..."
-                        onChange={(e) => {
-                            handleSearchChange(e.target.value);
-                        }}
-                        defaultValue={searchParams.get('query')?.toString()}
-                        className="pl-10"
-                    />
-                </div>
-            </CardContent>
-        </Card>
+        <div className="relative w-full md:w-full">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+            <Input
+                placeholder="Buscar por nombre, cédula, teléfono, email o número de póliza..."
+                onChange={(e) => {
+                    handleSearchChange(e.target.value);
+                }}
+                defaultValue={searchParams.get('query')?.toString()}
+                className="pl-10"
+            />
+        </div>
     )
 }

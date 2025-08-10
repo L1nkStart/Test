@@ -1,9 +1,8 @@
 import { Suspense } from 'react';
 import { requireAuth } from '@/lib/auth';
-import { FormProvider } from './form-context';
-import { SearchBar } from '@/components/search-bar';
-import { InsuranceHoldersTable } from './holders-table';
-import { InsuranceHolderCreateButton } from './create-button';
+import { FormProvider } from './components/form-context';
+import { InsuranceHoldersTable } from './components/holders-table';
+import { SearchParams } from '@/interfaces/search-params-props';
 
 /*
     Consideré que esta sería la estructura que mejor rendimiento daría para la carga
@@ -20,14 +19,9 @@ import { InsuranceHolderCreateButton } from './create-button';
 */
 
 export default async function InsuranceHoldersPage(props: {
-    searchParams?: Promise<{
-        query?: string;
-        page?: string;
-    }>;
+    searchParams?: Promise<SearchParams>;
 }) {
-    const searchParams = await props.searchParams;
-    const query = searchParams?.query || '';
-    const currentPage = Number(searchParams?.page) || 1;
+    const searchParams = (await props.searchParams) as SearchParams;
 
     await requireAuth(['Superusuario', 'Coordinador Regional']);
 
@@ -39,15 +33,12 @@ export default async function InsuranceHoldersPage(props: {
                         <h1 className="font-semibold text-lg md:text-2xl">Titulares de Seguro</h1>
                         <p className="text-muted-foreground">Gestión de titulares de pólizas de seguro</p>
                     </div>
-                    <InsuranceHolderCreateButton />
                 </div>
 
-                <div>
-                    <SearchBar />
-                </div>
+                {/* <HoldersToolbar /> */}
 
-                <Suspense key={query + currentPage} fallback={<div>Cargando tabla...</div>}>
-                    <InsuranceHoldersTable query={query} currentPage={currentPage} />
+                <Suspense fallback={<div>Cargando tabla...</div>}>
+                    <InsuranceHoldersTable searchParams={searchParams} />
                 </Suspense>
             </FormProvider>
         </main>
