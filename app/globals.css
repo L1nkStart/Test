@@ -75,16 +75,6 @@
   text-wrap: balance;
 }
 
-@layer base {
-  *,
-  ::after,
-  ::before,
-  ::backdrop,
-  ::file-selector-button {
-    border-color: var(--color-gray-200, currentcolor);
-  }
-}
-
 body {
   font-family: Arial, Helvetica, sans-serif;
 }
@@ -94,13 +84,21 @@ html[data-radix-dialog-open] {
 }
 
 @layer base {
+  html,
+  body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+  }
+  
   :root {
     /* Colores base */
     --text: hsl(0 0% 13%);
-    --background: hsl(240 60% 99%);
-    --primary: hsl(14 100% 57%);
-    --secondary: hsl(231 48% 48%);
-    --accent: hsl(232 46% 84%);
+    --background: hsl(240 40% 98%);
+    --primary: hsl(14 85% 57%);
+    --secondary: hsl(220 60% 48%);
+    --accent: hsl(220 60% 84%);
     --accent-foreground: hsl(0 0% 13%);
     --card: hsl(0 0% 100%);
     --card-foreground: hsl(0 0% 13%);
@@ -117,19 +115,17 @@ html[data-radix-dialog-open] {
     --border: hsl(0 0% 90%);
     --input: hsl(0 0% 90%);
     --ring: hsl(231 48% 40%);
-    
+
     /* Gráficos */
-    --chart-1: hsl(231 70% 50%);
-    --chart-2: hsl(173 58% 39%);
-    --chart-3: hsl(27 87% 67%);
-    --chart-4: hsl(43 74% 66%);
-    --chart-5: hsl(197 37% 24%);
-    
+    --chart-1: var(--primary);
+    --chart-2: var(--secondary);
+    --chart-3: var(--accent);
+        
     /* Radio global */
     --radius: 0.5rem;
     
     /* Sidebar */
-    --sidebar-background: hsl(240 60% 99%);
+    --sidebar-background: hsl(240 40% 100%);
     --sidebar-foreground: hsl(0 0% 13%);
     --sidebar-primary: var(--primary);
     --sidebar-primary-foreground: var(--primary-foreground);
@@ -167,12 +163,10 @@ html[data-radix-dialog-open] {
     --ring: hsl(231 48% 70%);
     
     /* Gráficos */
-    --chart-1: hsl(231 70% 70%);
-    --chart-2: hsl(173 58% 60%);
-    --chart-3: hsl(27 87% 77%);
-    --chart-4: hsl(43 74% 76%);
-    --chart-5: hsl(197 37% 44%);
-    
+    --chart-1: var(--primary);
+    --chart-2: var(--secondary);
+    --chart-3: var(--accent);
+        
     /* Radio global */
     --radius: 0.5rem;
     
@@ -186,21 +180,22 @@ html[data-radix-dialog-open] {
     --sidebar-border: var(--border);
     --sidebar-ring: var(--ring);
   }
-
-}
-
-@layer base {
-  * {
-    @apply border-border outline-ring/50;
+  
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentcolor);
   }
+
 
   body {
     @apply bg-background text-foreground;
   }
-
-  html {
-    overflow-x: hidden;
-    /* Previene el scroll horizontal en el html */
+  
+  * {
+    @apply border-border outline-ring/50;
   }
 }
 
