@@ -204,7 +204,7 @@ export function UserForm({ user, onSuccess, onCancel }: UserFormProps) {
         <Button type="button" variant="outline" onClick={onCancel}>
           Cancelar
         </Button>
-        <Button type="submit">{user ? "Guardar Cambios" : "Crear Usuario"}</Button>
+        <Button type="submit" className="bg-insurance-blue-deep hover:bg-insurance-blue-deep/90 text-white">{user ? "Guardar Cambios" : "Crear Usuario"}</Button>
       </div>
     </form>
   )

@@ -173,7 +173,7 @@ export function AppSidebar({
       <SidebarHeader>
         <Link href="/dashboard" className="flex items-center gap-2 px-2 py-4">
           <Image src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRvaO09WlVAzYrDYJc_F8gz1RlQPNuWg8oJKQ&s" alt="Logo" width={40} height={40} className="rounded-full" />
-          <span className="text-lg font-semibold">CGM Sistema</span>
+          <span className="text-lg font-semibold text-insurance-blue-deep">CGM Sistema</span>
         </Link>
       </SidebarHeader>
       <SidebarContent>
@@ -212,8 +212,8 @@ export function AppSidebar({
                   <span>Mi Perfil</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => logoutAction()}>
-                  <LogOut className="mr-2 h-4 w-4" />
-                  <span>Cerrar Sesión</span>
+                  <LogOut className="mr-2 h-4 w-4 text-red-500" />
+                  <span className="text-red-500">Cerrar Sesión</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

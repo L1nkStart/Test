@@ -63,7 +63,7 @@ export async function DashboardHeader() {
   const filteredNavItems = navItems.filter((item) => hasRequiredRole(userRole, item.roles))
 
   return (
-    <header className="flex h-14 lg:h-[60px] items-center gap-4 border-b bg-gray-100/40 px-6 dark:bg-gray-800/40">
+    <header className="flex h-14 lg:h-[60px] items-center gap-4 border-b bg-insurance-blue-sky px-6 dark:bg-insurance-gray-neutral/20">
       <Sheet>
         <SheetTrigger asChild>
           <Button className="lg:hidden bg-transparent" size="icon" variant="outline">
@@ -73,14 +73,14 @@ export async function DashboardHeader() {
         </SheetTrigger>
         <SheetContent side="left">
           <Link className="flex items-center gap-2 font-semibold" href="#">
-            <Package2Icon className="h-6 w-6" />
-            <span className="">TEST System</span>
+            <Package2Icon className="h-6 w-6 text-insurance-blue-deep" />
+            <span className="text-insurance-blue-deep">TEST System</span>
           </Link>
           <div className="grid gap-2 py-6">
             {filteredNavItems.map((item) => (
               <Link
                 key={item.href}
-                className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-gray-900 transition-all hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-50"
+                className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-insurance-gray-neutral transition-all hover:text-insurance-blue-deep dark:text-insurance-gray-neutral dark:hover:text-insurance-blue-deep"
                 href={item.href}
               >
                 <item.icon className="h-4 w-4" />
@@ -93,9 +93,9 @@ export async function DashboardHeader() {
       <div className="w-full flex-1">
         <form>
           <div className="relative">
-            <SearchIcon className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500 dark:text-gray-400" />
+            <SearchIcon className="absolute left-2.5 top-2.5 h-4 w-4 text-insurance-gray-neutral dark:text-insurance-gray-neutral" />
             <Input
-              className="w-full bg-white shadow-none appearance-none pl-8 md:w-2/3 lg:w-1/3 dark:bg-gray-950"
+              className="w-full bg-white shadow-none appearance-none pl-8 md:w-2/3 lg:w-1/3 dark:bg-insurance-gray-neutral/10"
               placeholder="Search..."
               type="search"
             />
@@ -119,7 +119,7 @@ export async function DashboardHeader() {
           <DropdownMenuSeparator />
           <DropdownMenuItem>
             <form action={logoutAction} className="w-full">
-              <button type="submit" className="w-full text-left">
+              <button type="submit" className="w-full text-left text-red-500">
                 Cerrar Sesión
               </button>
             </form>

@@ -53,6 +53,21 @@ const config = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        // Nueva paleta de colores para seguros
+        insurance: {
+          // Paleta Principal
+          "blue-deep": "#1E3A8A",      // Azul Profundo - Cabeceras, botones primarios
+          "blue-sky": "#3B82F6",       // Azul Celeste - Botones secundarios, iconos
+          "emerald": "#047857",        // Verde Esmeralda - Éxito, progreso
+          
+          // Paleta de Soporte
+          "gray-neutral": "#4B5563",   // Gris Neutro - Textos, bordes
+          "gray-light": "#F3F4F6",     // Gris Claro - Fondos, espacios
+          
+          // Acentos & Alertas
+          "amber": "#F59E0B",          // Ámbar Cálido - Alertas, recordatorios
+          "coral": "#EF4444",          // Coral Suave - Errores, advertencias
+        },
         // Custom color for the button
         orange: {
           600: "#E65100", // A shade of orange that matches the image
