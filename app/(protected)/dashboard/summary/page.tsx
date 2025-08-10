@@ -1,61 +1,42 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Shield, Users, FileText } from "lucide-react"
 import { fetchInsuranceHoldersStats } from "@/app/actions";
+import { DemographicsSection } from "./components/demographics-section";
+import { DistributionCharts } from "./components/distribution-charts";
+import { MetricSelectorCard } from "./components/metric-selector-card";
 
 export default async function DashboardSummary() {
     // Obtenemos las estadísticas. Si hay un error, usamos .catch() para
     // proporcionar un objeto con valores por defecto y evitar que la página se rompa.
-    const stats = await fetchInsuranceHoldersStats().catch(err => {
-        console.error("Error fetching dashboard stats:", err);
-        return {
-            totalHolders: 0,
-            activePolicies: 0,
-            totalPatients: 0,
-            totalCases: 0,
-        };
-    });
+    const stats = await fetchInsuranceHoldersStats();
+
+    if (!stats || !stats.generalMetrics) {
+        return (
+            <div className="flex items-center justify-center h-96">
+                <div className="text-center">
+                    <p className="text-lg text-muted-foreground">No se pudieron cargar las estadísticas.</p>
+                </div>
+            </div>
+        )
+    }
 
     return (
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-            <Card>
-                <CardHeader className="flex items-center justify-between pb-2">
-                    <CardTitle className="text-sm font-medium">Total Titulares</CardTitle>
-                    <Shield className="h-4 w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                    <div className="text-2xl font-bold">{stats.totalHolders}</div>
-                </CardContent>
-            </Card>
+        // Grid de 2 filas y con altura que llene la pantalla
+        <div className="grid grid-rows-[auto_1fr] gap-4 h-full">
+            {/* Sección de métricas (Fila 1 - Altura automática) */}
+            <MetricSelectorCard
+                generalMetrics={stats.generalMetrics}
+                financialMetrics={stats.financialMetrics}
+                actionableInsights={stats.actionableInsights}
+            />
 
-            <Card>
-                <CardHeader className="flex items-center justify-between pb-2">
-                    <CardTitle className="text-sm font-medium">Pólizas Activas</CardTitle>
-                    <Shield className="h-4 w-4 text-green-600" />
-                </CardHeader>
-                <CardContent>
-                    <div className="text-2xl font-bold">{stats.activePolicies}</div>
-                </CardContent>
-            </Card>
-
-            <Card>
-                <CardHeader className="flex items-center justify-between pb-2">
-                    <CardTitle className="text-sm font-medium">Total Pacientes</CardTitle>
-                    <Users className="h-4 w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                    <div className="text-2xl font-bold">{stats.totalPatients}</div>
-                </CardContent>
-            </Card>
-
-            <Card>
-                <CardHeader className="flex items-center justify-between pb-2">
-                    <CardTitle className="text-sm font-medium">Total Casos</CardTitle>
-                    <FileText className="h-4 w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                    <div className="text-2xl font-bold">{stats.totalCases}</div>
-                </CardContent>
-            </Card>
+            {/* Sección de Demografía y Distribución (Fila 2 - Ocupa el resto del espacio) */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                <div className="lg:col-span-2">
+                    <DistributionCharts distributions={stats.distributions} />
+                </div>
+                <div className="lg:col-span-1">
+                    <DemographicsSection demographics={stats.demographics} />
+                </div>
+            </div>
         </div>
     )
 }
