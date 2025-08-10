@@ -8,6 +8,8 @@ import { v4 as uuidv4 } from "uuid"
 import pool from "@/lib/db"
 import { getFullUserSession } from "@/lib/auth"
 import { z } from "zod"
+import { cache } from "react"
+import { InsuranceHolder } from "@/interfaces/insurance-holder"
 
 // Esquema de validación para el formulario de usuario
 const userSchema = z.object({
@@ -112,6 +114,104 @@ const paymentSchema = z.object({
     notes: z.string().optional().nullable(),
 })
 
+const ITEMS_PER_PAGE = 10;
+
+export const fetchFilteredInsuranceHolders = cache(async (
+        query: string,
+        page: number,
+    ): Promise<InsuranceHolder[]> => {
+        const session = await getFullUserSession();
+        if (!session) {
+            return [];
+        }
+
+        const offset = (page - 1) * ITEMS_PER_PAGE;
+
+        try {
+            let sql = `
+                SELECT 
+                    id, ci, name, phone, email, policyNumber, insuranceCompany, 
+                    policyType, policyStatus, coverageType, maxCoverageAmount, 
+                    usedCoverageAmount, isActive
+                FROM 
+                    insurance_holders
+            `;
+            const params: (string | number)[] = [];
+
+            // Lógica para añadir el WHERE
+            if (query) {
+                const searchTerm = `%${query}%`;
+                sql += ` WHERE (name LIKE ? OR ci LIKE ? OR phone LIKE ? OR email LIKE ? OR policyNumber LIKE ?)`;
+                params.push(searchTerm, searchTerm, searchTerm, searchTerm, searchTerm);
+            }
+
+            // Lógica para añadir la paginación
+            sql += ` ORDER BY name ASC LIMIT ? OFFSET ?`;
+            params.push(String(ITEMS_PER_PAGE), String(offset));
+
+            const [rows]: any = await pool.execute(sql, params);
+            
+            return rows.map((row: any) => ({
+                ...row,
+                isActive: Boolean(row.isActive),
+                
+                // Estos atributos no existen en la bd, 0 por defecto para el funcionamiento del front
+                totalCases: 0,
+                totalPatients: 0,
+            }));
+
+        } catch (error) {
+            console.error('Error de base de datos al obtener titulares:', error);
+            throw new Error('Failed to fetch insurance holders.');
+        }
+    }
+)
+
+/**
+ * Calcula y devuelve estadísticas clave para el dashboard de titulares de seguro.
+ * Las estadísticas de titulares se filtran, las de casos son globales.
+ * @returns Un objeto con las estadísticas calculadas.
+ */
+export const fetchInsuranceHoldersStats = cache(async () => {
+    const session = await getFullUserSession();
+    if (!session) {
+        return {
+        totalHolders: 0,
+        activePolicies: 0,
+        totalCases: 0,
+        totalPatients: 0,
+        };
+    }
+
+    try {
+        const holdersStatsQuery = `
+        SELECT 
+            COUNT(id) AS totalHolders,
+            SUM(CASE WHEN policyStatus = 'Activo' THEN 1 ELSE 0 END) AS activePolicies
+        FROM insurance_holders
+        `;
+
+        // Ejecutar todas las consultas en paralelo para mayor eficiencia
+        const [holdersStatsRows]: any = await pool.execute(holdersStatsQuery);
+        
+        const stats = holdersStatsRows[0];
+
+        return {
+            totalHolders: Number(stats.totalHolders) || 0,
+            activePolicies: Number(stats.activePolicies) || 0,
+
+            // Estos atributos no existen en la bd, 0 por defecto para el funcionamiento del front
+            totalCases: 0,
+            totalPatients: 0,
+        };
+
+    } catch (error) {
+        console.error('Database Error fetching stats:', error);
+        throw new Error('Failed to fetch dashboard statistics.');
+    }
+});
+
+
 export async function createUser(prevState: any, formData: FormData) {
     const session = await getFullUserSession()
     if (!session || (session.role !== "Superusuario" && session.role !== "Administrador")) {
@@ -187,6 +287,10 @@ export async function updateUser(prevState: any, formData: FormData) {
 
     if (!id) {
         return { success: false, message: "ID de usuario no proporcionado." }
+    }
+
+    if (isActive === undefined) {
+        return { success: false, message: "El estado de actividad es requerido." }
     }
 
     try {
