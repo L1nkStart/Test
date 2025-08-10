@@ -54,12 +54,12 @@ interface InsuranceHolder {
 
 interface InsuranceHolderFormProps {
     isOpen: boolean
-    onClose: () => void
-    onSave: (holder: Omit<InsuranceHolder, "id"> | Partial<InsuranceHolder>) => void
+    onCloseAction: () => void
+    onSaveAction: (holder: Omit<InsuranceHolder, "id"> | Partial<InsuranceHolder>) => void
     initialData?: InsuranceHolder | null
 }
 
-export function InsuranceHolderForm({ isOpen, onClose, onSave, initialData = null }: InsuranceHolderFormProps) {
+export function InsuranceHolderForm({ isOpen, onCloseAction, onSaveAction, initialData = null }: InsuranceHolderFormProps) {
     const [ci, setCi] = useState(initialData?.ci || "")
     const [name, setName] = useState(initialData?.name || "")
     const [phone, setPhone] = useState(initialData?.phone || "")
@@ -274,12 +274,36 @@ export function InsuranceHolderForm({ isOpen, onClose, onSave, initialData = nul
             createAsPatient: !initialData && createAsPatient, // Only for new holders
         }
 
-        onSave(holderData)
-        onClose()
+        // Fix: convert nulls to undefined for optional fields to match InsuranceHolder type
+        const holderDataFixed = {
+            ...holderData,
+            otherPhone: holderData.otherPhone ?? undefined,
+            fixedPhone: holderData.fixedPhone ?? undefined,
+            email: holderData.email ?? undefined,
+            birthDate: holderData.birthDate ?? undefined,
+            age: holderData.age ?? undefined,
+            gender: holderData.gender ?? undefined,
+            address: holderData.address ?? undefined,
+            city: holderData.city ?? undefined,
+            state: holderData.state ?? undefined,
+            policyNumber: holderData.policyNumber ?? undefined,
+            policyStartDate: holderData.policyStartDate ?? undefined,
+            policyEndDate: holderData.policyEndDate ?? undefined,
+            coverageType: holderData.coverageType ?? undefined,
+            maxCoverageAmount: holderData.maxCoverageAmount ?? undefined,
+            emergencyContact: holderData.emergencyContact ?? undefined,
+            emergencyPhone: holderData.emergencyPhone ?? undefined,
+            bloodType: holderData.bloodType ?? undefined,
+            allergies: holderData.allergies ?? undefined,
+            medicalHistory: holderData.medicalHistory ?? undefined,
+        }
+
+        onSaveAction(holderDataFixed)
+        onCloseAction()
     }
 
     return (
-        <Dialog open={isOpen} onOpenChange={onClose}>
+        <Dialog open={isOpen} onOpenChange={onCloseAction}>
             <DialogContent className="sm:max-w-[900px] max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
                     <DialogTitle>{initialData ? "Editar Titular de Seguro" : "Crear Nuevo Titular de Seguro"}</DialogTitle>
@@ -540,10 +564,10 @@ export function InsuranceHolderForm({ isOpen, onClose, onSave, initialData = nul
                     </Card>
 
                     <DialogFooter>
-                        <Button type="button" variant="outline" onClick={onClose}>
+                        <Button type="button" variant="outline" onClick={onCloseAction}>
                             Cancelar
                         </Button>
-                        <Button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white">
+                        <Button type="submit" className="bg-insurance-blue-deep hover:bg-insurance-blue-deep/90 text-white">
                             {initialData ? "Guardar Cambios" : "Crear Titular"}
                         </Button>
                     </DialogFooter>

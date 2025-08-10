@@ -73,7 +73,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-100 dark:bg-gray-950">
+    <div className="flex min-h-screen items-center justify-center bg-insurance-gray-light dark:bg-insurance-gray-neutral/10">
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1 text-center">
           <CardTitle className="text-2xl font-bold">Iniciar Sesión!</CardTitle>
@@ -102,7 +102,7 @@ export default function LoginPage() {
                 onChange={(e) => setPassword(e.target.value)}
               />
             </div>
-            <Button type="submit" className="w-full" disabled={loading}>
+            <Button type="submit" className="w-full bg-insurance-blue-deep hover:bg-insurance-blue-deep/90 text-white" disabled={loading}>
               {loading ? "Iniciando sesión..." : "Iniciar Sesión"}
             </Button>
           </form>

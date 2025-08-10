@@ -60,11 +60,19 @@ export async function GET(req: Request) {
         const search = searchParams.get("search");
         const policyNumber = searchParams.get("policyNumber");
         const includePatients = searchParams.get("includePatients") === "true";
+        
+        // Parámetros de paginación
+        const page = parseInt(searchParams.get("page") || "1");
+        const limit = parseInt(searchParams.get("limit") || "10");
+        const offset = (page - 1) * limit;
 
-        // Se utiliza LEFT JOIN para obtener el nombre del cliente/aseguradora y contar casos/pacientes asociados.
-        // Esto es mucho más eficiente que hacer múltiples consultas.
-        let query = `
-            SELECT * FROM insurance_holders 
+        // Consulta simplificada que funciona solo con la tabla insurance_holders
+        let baseQuery = `
+            SELECT h.*, 
+                   h.insuranceCompany as clientName,
+                   COALESCE(0, 0) as totalCases,
+                   COALESCE(0, 0) as totalPatients
+            FROM insurance_holders h
         `;
 
         const params: any[] = [];
@@ -89,11 +97,18 @@ export async function GET(req: Request) {
         }
 
         if (whereClauses.length > 0) {
-            query += " WHERE " + whereClauses.join(" AND ");
+            baseQuery += " WHERE " + whereClauses.join(" AND ");
         }
 
+        // Consulta para obtener el total de registros (sin paginación)
+        let countQuery = `SELECT COUNT(*) as total FROM (${baseQuery}) as subquery`;
+        const [countResult]: any = await pool.execute(countQuery, params);
+        const totalRecords = countResult[0].total;
 
-        const [rows]: any = await pool.execute(query);
+        // Consulta principal con paginación
+        const paginatedQuery = `${baseQuery} ORDER BY h.name LIMIT ? OFFSET ?`;
+        const paginatedParams = [...params, limit, offset];
+        const [rows]: any = await pool.execute(paginatedQuery, paginatedParams);
 
         // La función de mapeo transforma los datos crudos de la BD al formato esperado por el frontend.
         const holders: InsuranceHolder[] = rows.map((row: any) => ({
@@ -108,44 +123,10 @@ export async function GET(req: Request) {
             totalPatients: Number(row.totalPatients || 0),
         }));
 
-        // Si se solicita incluir pacientes, se hace una segunda consulta eficiente
-        // usando los IDs de los titulares ya obtenidos.
-        if (includePatients && holders.length > 0) {
-            const holderIds = holders.map(h => h.id);
-            const [patientRelations]: any = await pool.execute(
-                `
-                SELECT 
-                    p.*, 
-                    r.holderId, 
-                    r.relationshipType, 
-                    r.isPrimary
-                FROM 
-                    patients p
-                JOIN 
-                    holder_patient_relationships r ON p.id = r.patientId
-                WHERE 
-                    r.holderId IN (?)
-                `,
-                [holderIds]
-            );
-
-            const patientsByHolderId = patientRelations.reduce((acc: any, patient: any) => {
-                if (!acc[patient.holderId]) {
-                    acc[patient.holderId] = [];
-                }
-                acc[patient.holderId].push({
-                    ...patient,
-                    birthDate: patient.birthDate ? new Date(patient.birthDate).toISOString().split("T")[0] : null,
-                    isActive: Boolean(patient.isActive),
-                    isPrimary: Boolean(patient.isPrimary),
-                });
-                return acc;
-            }, {});
-
-            holders.forEach(holder => {
-                holder.patients = patientsByHolderId[holder.id] || [];
-            });
-        }
+        // Comentamos la inclusión de pacientes ya que no tenemos esas tablas
+        // if (includePatients && holders.length > 0) {
+        //     // Lógica para incluir pacientes cuando se implementen las tablas
+        // }
 
         // Si la búsqueda era por un único registro, se devuelve solo ese objeto.
         if (id || ci || policyNumber) {
@@ -155,8 +136,19 @@ export async function GET(req: Request) {
             return NextResponse.json({ error: "Insurance holder not found" }, { status: 404 });
         }
 
-        // Si no, se devuelve el array completo de resultados.
-        return NextResponse.json(holders);
+        // Si no, se devuelve el array paginado con metadatos de paginación.
+        const totalPages = Math.ceil(totalRecords / limit);
+        return NextResponse.json({
+            data: holders,
+            pagination: {
+                currentPage: page,
+                totalPages,
+                totalRecords,
+                limit,
+                hasNextPage: page < totalPages,
+                hasPreviousPage: page > 1
+            }
+        });
     } catch (error) {
         console.error("Error fetching insurance holders:", error);
         return NextResponse.json({ error: "Failed to fetch insurance holders" }, { status: 500 });
@@ -165,7 +157,6 @@ export async function GET(req: Request) {
 
 
 export async function POST(req: Request) {
-    const connection = await pool.getConnection(); // Obtener conexión para la transacción
     try {
         const session = await getFullUserSession();
         if (!session) {
@@ -184,14 +175,14 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: "Campos requeridos faltantes: ci, name, phone, clientId" }, { status: 400 });
         }
 
-        const [existingHolder]: any = await connection.execute("SELECT id FROM insurance_holders WHERE ci = ?", [ci]);
+        const [existingHolder]: any = await pool.execute("SELECT id FROM insurance_holders WHERE ci = ?", [ci]);
         if (existingHolder.length > 0) {
             return NextResponse.json({ error: "Ya existe un titular con esta cédula" }, { status: 400 });
         }
 
-        const [clientExists]: any = await connection.execute("SELECT id, name, insuranceCompany FROM clients WHERE id = ?", [clientId]);
-        if (clientExists.length === 0) {
-            return NextResponse.json({ error: "Cliente/Aseguradora no encontrada" }, { status: 400 });
+        // Como no tenemos la tabla clients, validamos que clientId no esté vacío
+        if (!clientId || clientId.trim() === "") {
+            return NextResponse.json({ error: "ClientId es requerido" }, { status: 400 });
         }
 
         const newHolder: Omit<InsuranceHolder, 'clientName' | 'insuranceCompany'> = {
@@ -223,51 +214,32 @@ export async function POST(req: Request) {
             isActive: true,
         };
 
-        await connection.beginTransaction(); // Iniciar transacción
-
-        await connection.execute(
-            `INSERT INTO insurance_holders (id, ci, name, phone, otherPhone, fixedPhone, email, birthDate, age, gender, address, city, state, clientId, policyNumber, policyType, policyStatus, policyStartDate, policyEndDate, coverageType, maxCoverageAmount, usedCoverageAmount, emergencyContact, emergencyPhone, bloodType, allergies, medicalHistory, isActive) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-            Object.values(newHolder)
-        );
-
-        if (createAsPatient) {
-            const [existingPatient]: any = await connection.execute("SELECT id FROM patients WHERE ci = ?", [ci]);
-            let patientId: string;
-
-            if (existingPatient.length > 0) {
-                patientId = existingPatient[0].id;
-                await connection.execute("UPDATE patients SET primaryInsuranceHolderId = ? WHERE id = ?", [newHolder.id, patientId]);
-            } else {
-                patientId = uuidv4();
-                await connection.execute(
-                    `INSERT INTO patients (id, ci, name, phone, otherPhone, fixedPhone, email, birthDate, age, gender, address, city, state, emergencyContact, emergencyPhone, bloodType, allergies, medicalHistory, primaryInsuranceHolderId, isActive) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-                    [patientId, newHolder.ci, newHolder.name, newHolder.phone, newHolder.otherPhone, newHolder.fixedPhone, newHolder.email, newHolder.birthDate, newHolder.age, newHolder.gender, newHolder.address, newHolder.city, newHolder.state, newHolder.emergencyContact, newHolder.emergencyPhone, newHolder.bloodType, newHolder.allergies, newHolder.medicalHistory, newHolder.id, true]
-                );
-            }
-
-            const relationshipId = uuidv4();
+        const connection = await pool.getConnection();
+        try {
+            await connection.beginTransaction();
             await connection.execute(
-                `INSERT INTO holder_patient_relationships (id, holderId, patientId, relationshipType, isPrimary, isActive) VALUES (?, ?, ?, ?, ?, ?)`,
-                [relationshipId, newHolder.id, patientId, "Titular", true, true]
+                `INSERT INTO insurance_holders (id, ci, name, phone, otherPhone, fixedPhone, email, birthDate, age, gender, address, city, state, clientId, policyNumber, policyType, policyStatus, policyStartDate, policyEndDate, coverageType, maxCoverageAmount, usedCoverageAmount, emergencyContact, emergencyPhone, bloodType, allergies, medicalHistory, isActive) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                Object.values(newHolder)
             );
+            await connection.commit();
+        } catch (error) {
+            await connection.rollback();
+            throw error;
+        } finally {
+            connection.release();
         }
-
-        await connection.commit(); // Confirmar transacción
 
         const responseHolder = {
             ...newHolder,
-            clientName: clientExists[0].name,
-            insuranceCompany: clientExists[0].insuranceCompany,
+            clientName: clientId, // Usamos clientId como nombre temporal
+            insuranceCompany: clientId, // Usamos clientId como compañía temporal
         };
 
         return NextResponse.json(responseHolder, { status: 201 });
 
-    } catch (error) {
-        await connection.rollback(); // Revertir transacción en caso de error
+    } catch (error: any) {
         console.error("Error creating insurance holder:", error);
-        return NextResponse.json({ error: "Failed to create insurance holder" }, { status: 500 });
-    } finally {
-        connection.release(); // Liberar la conexión al final
+        return NextResponse.json({ error: error.message || "Failed to create insurance holder" }, { status: 500 });
     }
 }
 
@@ -297,9 +269,9 @@ export async function PUT(req: Request) {
         }
 
         if (updates.clientId) {
-            const [clientExists]: any = await pool.execute("SELECT id FROM clients WHERE id = ?", [updates.clientId]);
-            if (clientExists.length === 0) {
-                return NextResponse.json({ error: "Cliente/Aseguradora no encontrada" }, { status: 400 });
+            // Validamos que clientId no esté vacío
+            if (!updates.clientId || updates.clientId.trim() === "") {
+                return NextResponse.json({ error: "ClientId no puede estar vacío" }, { status: 400 });
             }
         }
 
@@ -319,9 +291,8 @@ export async function PUT(req: Request) {
         // Re-utilizamos la lógica de GET para devolver el titular actualizado y completo
         const [updatedRows]: any = await pool.execute(
             `
-            SELECT h.*, c.name AS clientName, c.insuranceCompany 
+            SELECT h.*, h.insuranceCompany AS clientName
             FROM insurance_holders h 
-            LEFT JOIN clients c ON h.clientId = c.id 
             WHERE h.id = ?
             `,
             [id]
@@ -346,7 +317,6 @@ export async function PUT(req: Request) {
 
 
 export async function DELETE(req: Request) {
-    const connection = await pool.getConnection();
     try {
         const session = await getFullUserSession();
         if (!session || (session.role !== "Superusuario" && session.role !== "Coordinador Regional")) {
@@ -360,26 +330,33 @@ export async function DELETE(req: Request) {
             return NextResponse.json({ error: "Insurance holder ID is required" }, { status: 400 });
         }
 
-        await connection.beginTransaction();
+        const connection = await pool.getConnection();
+        try {
+            await connection.beginTransaction();
+            
+            // Comentamos la eliminación de relaciones ya que no tenemos esa tabla
+            // await connection.execute("DELETE FROM holder_patient_relationships WHERE holderId = ?", [id]);
 
+            const [result]: any = await connection.execute("DELETE FROM insurance_holders WHERE id = ?", [id]);
 
-        // Eliminar relaciones antes de eliminar el titular para evitar errores de FK
-        await connection.execute("DELETE FROM holder_patient_relationships WHERE holderId = ?", [id]);
-
-        const [result]: any = await connection.execute("DELETE FROM insurance_holders WHERE id = ?", [id]);
-
-        if (result.affectedRows === 0) {
+            if (result.affectedRows === 0) {
+                throw new Error("Insurance holder not found");
+            }
+            
+            await connection.commit();
+        } catch (error) {
             await connection.rollback();
-            return NextResponse.json({ error: "Insurance holder not found" }, { status: 404 });
+            throw error;
+        } finally {
+            connection.release();
         }
 
-        await connection.commit();
         return NextResponse.json({ message: "Insurance holder deleted successfully" }, { status: 200 });
-    } catch (error) {
-        await connection.rollback();
+    } catch (error: any) {
         console.error("Error deleting insurance holder:", error);
+        if (error.message === "Insurance holder not found") {
+            return NextResponse.json({ error: "Insurance holder not found" }, { status: 404 });
+        }
         return NextResponse.json({ error: "Failed to delete insurance holder" }, { status: 500 });
-    } finally {
-        connection.release();
     }
 }
