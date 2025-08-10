@@ -10,6 +10,63 @@ import { getFullUserSession } from "@/lib/auth"
 import { z } from "zod"
 import { cache } from "react"
 import { InsuranceHolder } from "@/interfaces/insurance-holder"
+import { SearchParams } from "@/interfaces/search-params-props" 
+import { RowDataPacket } from 'mysql2';
+
+interface MainStats extends RowDataPacket {
+    totalHolders: number;
+    activePolicies: number;
+    inactivePolicies: number;
+    expiredPolicies: number;
+    totalInsuredValue: number;
+    totalUsedCoverage: number;
+    averagePolicyValue: number;
+    coverageUsagePercentage: number;
+    averageAge: number;
+    femaleHolders: number;
+    maleHolders: number;
+    expiringIn30Days: number;
+    expiringIn31_90Days: number;
+    newPoliciesLast30Days: number;
+}
+
+interface DistributionRow extends RowDataPacket {
+    name: string;
+    value: number;
+}
+
+type DistributionMap = Record<string, number>;
+
+export interface InsuranceHoldersStats {
+    generalMetrics: {
+        totalHolders: number;
+        activePolicies: number;
+        inactivePolicies: number;
+        expiredPolicies: number;
+    };
+    financialMetrics: {
+        totalInsuredValue: number;
+        totalUsedCoverage: number;
+        averagePolicyValue: number;
+        coverageUsagePercentage: number;
+    };
+    demographics: {
+        averageAge: number;
+        femaleHolders: number;
+        maleHolders: number;
+    };
+    distributions: {
+        byCompany: DistributionMap;
+        byPolicyType: DistributionMap;
+        byCity: DistributionMap;
+        byAgeGroup: DistributionMap;
+    };
+    actionableInsights: {
+        expiringIn30Days: number;
+        expiringIn31_90Days: number;
+        newPoliciesLast30Days: number;
+    };
+}
 
 // Esquema de validación para el formulario de usuario
 const userSchema = z.object({
@@ -116,146 +173,245 @@ const paymentSchema = z.object({
 
 const ITEMS_PER_PAGE = 10;
 
-export const fetchFilteredInsuranceHolders = cache(async (
-        query: string,
-        page: number,
-    ): Promise<InsuranceHolder[]> => {
+export const fetchFilteredInsuranceHolders = cache(
+    async (
+        filters: SearchParams
+    ): Promise<{ holders: InsuranceHolder[], total: number }> => {
         const session = await getFullUserSession();
         if (!session) {
-            return [];
+            return {
+                holders: [],
+                total: 0
+            };
         }
+        
+        const {
+            currentPage = 1,
+            query,
+            policyStatus,
+            insuranceCompany,
+            policyType,
+            city
+        } = filters;
 
-        const offset = (page - 1) * ITEMS_PER_PAGE;
+        const offset = (currentPage - 1) * ITEMS_PER_PAGE;
 
         try {
-            let sql = `
+            // --- 1. Construir la base de la consulta y los filtros ---
+            const whereClauses: string[] = [];
+            const params: (string | number)[] = [];
+
+            if (query) {
+                const searchTerm = `%${query}%`;
+                whereClauses.push(`(name LIKE ? OR ci LIKE ? OR phone LIKE ? OR email LIKE ? OR policyNumber LIKE ?)`);
+                params.push(searchTerm, searchTerm, searchTerm, searchTerm, searchTerm);
+            }
+            if (policyStatus) {
+                whereClauses.push(`policyStatus = ?`);
+                params.push(policyStatus);
+            }
+            if (insuranceCompany) {
+                whereClauses.push(`insuranceCompany = ?`);
+                params.push(insuranceCompany);
+            }
+            if (policyType) {
+                whereClauses.push(`policyType = ?`);
+                params.push(policyType);
+            }
+            if (city) {
+                whereClauses.push(`city = ?`);
+                params.push(city);
+            }
+
+            // --- 2. Crear la cláusula WHERE para ambas consultas ---
+            const whereSql = whereClauses.length > 0 ? `WHERE ${whereClauses.join(' AND ')}` : '';
+
+            // --- 3. Definir ambas consultas (conteo y datos) ---
+
+            // Consulta para obtener el número total de registros FILTRADOS
+            const countSql = `SELECT COUNT(*) AS total FROM insurance_holders ${whereSql}`;
+            
+            // Consulta para obtener los datos paginados y FILTRADOS
+            const dataSql = `
                 SELECT 
                     id, ci, name, phone, email, policyNumber, insuranceCompany, 
                     policyType, policyStatus, coverageType, maxCoverageAmount, 
                     usedCoverageAmount, isActive
                 FROM 
                     insurance_holders
+                ${whereSql}
+                ORDER BY name ASC 
+                LIMIT ? 
+                OFFSET ?
             `;
-            const params: (string | number)[] = [];
-
-            // Lógica para añadir el WHERE
-            if (query) {
-                const searchTerm = `%${query}%`;
-                sql += ` WHERE (name LIKE ? OR ci LIKE ? OR phone LIKE ? OR email LIKE ? OR policyNumber LIKE ?)`;
-                params.push(searchTerm, searchTerm, searchTerm, searchTerm, searchTerm);
-            }
-
-            // Lógica para añadir la paginación
-            sql += ` ORDER BY name ASC LIMIT ? OFFSET ?`;
-            params.push(String(ITEMS_PER_PAGE), String(offset));
-
-            const [rows]: any = await pool.execute(sql, params);
             
-            return rows.map((row: any) => ({
+            // Los parámetros para el conteo son los mismos que para el WHERE de los datos
+            const countParams = [...params];
+            // A los parámetros de los datos, añadimos los de paginación
+            const dataParams = [...params, String(ITEMS_PER_PAGE), String(offset)];
+
+            // --- 4. Ejecutar ambas consultas en paralelo ---
+            const [countResult, dataResult]: [any, any] = await Promise.all([
+                pool.execute(countSql, countParams),
+                pool.execute(dataSql, dataParams)
+            ]);
+
+            const total = countResult[0][0].total || 0;
+            const holders = dataResult[0];
+
+            const insuranceHolders = holders.map((row: any) => ({
                 ...row,
                 isActive: Boolean(row.isActive),
-                
-                // Estos atributos no existen en la bd, 0 por defecto para el funcionamiento del front
+                // Puedes dejar estos valores en 0 o calcularlos si es necesario
                 totalCases: 0,
                 totalPatients: 0,
             }));
+
+            return {
+                holders: insuranceHolders,
+                total: total,
+            };
 
         } catch (error) {
             console.error('Error de base de datos al obtener titulares:', error);
             throw new Error('Failed to fetch insurance holders.');
         }
     }
-)
+);
+
 
 /**
- * Calcula y devuelve estadísticas clave para el dashboard de titulares de seguro.
- * Las estadísticas de titulares se filtran, las de casos son globales.
- * @returns Un objeto con las estadísticas calculadas.
+ * Calcula y devuelve un conjunto completo de métricas para el dashboard de seguros.
+ * @returns Un objeto con métricas generales, financieras, demográficas y distribuciones.
  */
-export const fetchInsuranceHoldersStats = cache(async () => {
+export const fetchInsuranceHoldersStats = cache(async (): Promise<InsuranceHoldersStats> => {
     const session = await getFullUserSession();
     if (!session) {
+        // Retorno para cuando no hay sesión. Debe coincidir con la interfaz.
         return {
-        totalHolders: 0,
-        activePolicies: 0,
-        totalCases: 0,
-        totalPatients: 0,
+        generalMetrics: { totalHolders: 0, activePolicies: 0, inactivePolicies: 0, expiredPolicies: 0 },
+        financialMetrics: { totalInsuredValue: 0, totalUsedCoverage: 0, averagePolicyValue: 0, coverageUsagePercentage: 0 },
+        demographics: { averageAge: 0, femaleHolders: 0, maleHolders: 0 },
+        distributions: { byCompany: {}, byPolicyType: {}, byCity: {}, byAgeGroup: {} },
+        actionableInsights: { expiringIn30Days: 0, expiringIn31_90Days: 0, newPoliciesLast30Days: 0 }
         };
     }
 
     try {
-        const holdersStatsQuery = `
+        const statsQuery = `
         SELECT 
-            COUNT(id) AS totalHolders,
-            SUM(CASE WHEN policyStatus = 'Activo' THEN 1 ELSE 0 END) AS activePolicies
-        FROM insurance_holders
+            COUNT(*) AS totalHolders,
+            SUM(CASE WHEN policyStatus = 'Activo' THEN 1 ELSE 0 END) AS activePolicies,
+            SUM(CASE WHEN policyStatus = 'Inactivo' THEN 1 ELSE 0 END) AS inactivePolicies,
+            SUM(CASE WHEN policyStatus = 'Vencido' THEN 1 ELSE 0 END) AS expiredPolicies,
+            SUM(maxCoverageAmount) AS totalInsuredValue,
+            SUM(usedCoverageAmount) AS totalUsedCoverage,
+            AVG(maxCoverageAmount) AS averagePolicyValue,
+            (SUM(usedCoverageAmount) / NULLIF(SUM(maxCoverageAmount), 0)) * 100 AS coverageUsagePercentage,
+            AVG(age) AS averageAge,
+            SUM(CASE WHEN gender = 'Femenino' THEN 1 ELSE 0 END) AS femaleHolders,
+            SUM(CASE WHEN gender = 'Masculino' THEN 1 ELSE 0 END) AS maleHolders,
+            SUM(CASE WHEN policyEndDate BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 30 DAY) THEN 1 ELSE 0 END) AS expiringIn30Days,
+            SUM(CASE WHEN policyEndDate BETWEEN DATE_ADD(CURDATE(), INTERVAL 31 DAY) AND DATE_ADD(CURDATE(), INTERVAL 90 DAY) THEN 1 ELSE 0 END) AS expiringIn31_90Days,
+            SUM(CASE WHEN policyStartDate >= DATE_SUB(CURDATE(), INTERVAL 30 DAY) THEN 1 ELSE 0 END) AS newPoliciesLast30Days
+        FROM insurance_holders;
         `;
 
-        // Ejecutar todas las consultas en paralelo para mayor eficiencia
-        const [holdersStatsRows]: any = await pool.execute(holdersStatsQuery);
+        const byCompanyQuery = "SELECT insuranceCompany as name, COUNT(*) as value FROM insurance_holders GROUP BY insuranceCompany ORDER BY value DESC;";
+        const byPolicyTypeQuery = "SELECT policyType as name, COUNT(*) as value FROM insurance_holders GROUP BY policyType ORDER BY value DESC;";
+        const byCityQuery = "SELECT city as name, COUNT(*) as value FROM insurance_holders GROUP BY city ORDER BY value DESC LIMIT 10;";
+        const byAgeGroupQuery = `
+            SELECT 
+                CASE
+                    WHEN age < 25 THEN 'Menos de 25'
+                    WHEN age BETWEEN 25 AND 34 THEN '25-34 años'
+                    WHEN age BETWEEN 35 AND 44 THEN '35-44 años'
+                    WHEN age BETWEEN 45 AND 54 THEN '45-54 años'
+                    WHEN age >= 55 THEN '55 o más'
+                END as name,
+                COUNT(*) as value
+            FROM insurance_holders
+            -- CAMBIO: Agrupamos por la expresión completa, no por el alias.
+            GROUP BY
+                CASE
+                    WHEN age < 25 THEN 'Menos de 25'
+                    WHEN age BETWEEN 25 AND 34 THEN '25-34 años'
+                    WHEN age BETWEEN 35 AND 44 THEN '35-44 años'
+                    WHEN age BETWEEN 45 AND 54 THEN '45-54 años'
+                    WHEN age >= 55 THEN '55 o más'
+                END
+            ORDER BY name;
+        `;
+
         
-        const stats = holdersStatsRows[0];
+        const [
+        mainStatsResponse,
+        byCompanyResponse,
+        byPolicyTypeResponse,
+        byCityResponse,
+        byAgeGroupResponse
+        ] = await Promise.all([
+        pool.execute<MainStats[]>(statsQuery),
+        pool.execute<DistributionRow[]>(byCompanyQuery),
+        pool.execute<DistributionRow[]>(byPolicyTypeQuery),
+        pool.execute<DistributionRow[]>(byCityQuery),
+        pool.execute<DistributionRow[]>(byAgeGroupQuery)
+        ]);
+        
+        const mainStats = mainStatsResponse[0][0];
+        const byCompanyResult = byCompanyResponse[0];
+        const byPolicyTypeResult = byPolicyTypeResponse[0];
+        const byCityResult = byCityResponse[0];
+        const byAgeGroupResult = byAgeGroupResponse[0];
+
+        const arrayToObject = (arr: DistributionRow[]): DistributionMap => arr.reduce((obj, item) => {
+            obj[item.name] = item.value;
+            return obj;
+        }, {} as DistributionMap);
 
         return {
-            totalHolders: Number(stats.totalHolders) || 0,
-            activePolicies: Number(stats.activePolicies) || 0,
-
-            // Estos atributos no existen en la bd, 0 por defecto para el funcionamiento del front
-            totalCases: 0,
-            totalPatients: 0,
+        generalMetrics: {
+            totalHolders: Number(mainStats.totalHolders) || 0,
+            activePolicies: Number(mainStats.activePolicies) || 0,
+            inactivePolicies: Number(mainStats.inactivePolicies) || 0,
+            expiredPolicies: Number(mainStats.expiredPolicies) || 0,
+        },
+        financialMetrics: {
+            totalInsuredValue: Number(mainStats.totalInsuredValue) || 0,
+            totalUsedCoverage: Number(mainStats.totalUsedCoverage) || 0,
+            averagePolicyValue: Number(mainStats.averagePolicyValue) || 0,
+            coverageUsagePercentage: Number(mainStats.coverageUsagePercentage) || 0,
+        },
+        demographics: {
+            averageAge: Math.round(Number(mainStats.averageAge)) || 0,
+            femaleHolders: Number(mainStats.femaleHolders) || 0,
+            maleHolders: Number(mainStats.maleHolders) || 0,
+        },
+        distributions: {
+            byCompany: arrayToObject(byCompanyResult),
+            byPolicyType: arrayToObject(byPolicyTypeResult),
+            byCity: arrayToObject(byCityResult),
+            byAgeGroup: arrayToObject(byAgeGroupResult),
+        },
+        actionableInsights: {
+            expiringIn30Days: Number(mainStats.expiringIn30Days) || 0,
+            expiringIn31_90Days: Number(mainStats.expiringIn31_90Days) || 0,
+            newPoliciesLast30Days: Number(mainStats.newPoliciesLast30Days) || 0,
+        }
         };
-
     } catch (error) {
         console.error('Database Error fetching stats:', error);
-        throw new Error('Failed to fetch dashboard statistics.');
+        // Retorna un objeto vacío con la estructura de la interfaz en caso de error.
+        return {
+            generalMetrics: { totalHolders: 0, activePolicies: 0, inactivePolicies: 0, expiredPolicies: 0 },
+            financialMetrics: { totalInsuredValue: 0, totalUsedCoverage: 0, averagePolicyValue: 0, coverageUsagePercentage: 0 },
+            demographics: { averageAge: 0, femaleHolders: 0, maleHolders: 0 },
+            distributions: { byCompany: {}, byPolicyType: {}, byCity: {}, byAgeGroup: {} },
+            actionableInsights: { expiringIn30Days: 0, expiringIn31_90Days: 0, newPoliciesLast30Days: 0 }
+        };
     }
 });
 
-
-export async function createUser(prevState: any, formData: FormData) {
-    const session = await getFullUserSession()
-    if (!session || (session.role !== "Superusuario" && session.role !== "Administrador")) {
-        return { success: false, message: "No autorizado." }
-    }
-
-    const data = {
-        email: formData.get("email"),
-        name: formData.get("name"),
-        role: formData.get("role"),
-        password: formData.get("password"),
-        assignedStates: JSON.parse((formData.get("assignedStates") as string) || "[]"),
-        isActive: formData.get("isActive") === "true",
-    }
-
-    const validatedFields = userSchema.safeParse(data)
-
-    if (!validatedFields.success) {
-        return {
-            success: false,
-            errors: validatedFields.error.flatten().fieldErrors,
-            message: "Error de validación.",
-        }
-    }
-
-    const { email, name, role, password, assignedStates, isActive } = validatedFields.data
-
-    try {
-        const hashedPassword = await hash(password || "defaultpassword", 10) // Hash the password
-        const id = uuidv4()
-        await pool.execute(
-            "INSERT INTO users (id, email, name, role, password, assignedStates, isActive) VALUES (?, ?, ?, ?, ?, ?, ?)",
-            [id, email, name, role, hashedPassword, JSON.stringify(assignedStates), isActive],
-        )
-        revalidatePath("/users")
-        return { success: true, message: "Usuario creado exitosamente." }
-    } catch (error: any) {
-        if (error.code === "ER_DUP_ENTRY") {
-            return { success: false, message: "El correo electrónico ya está registrado." }
-        }
-        console.error("Error creating user:", error)
-        return { success: false, message: "Error al crear el usuario." }
-    }
-}
 
 export async function updateUser(prevState: any, formData: FormData) {
     const session = await getFullUserSession()
