@@ -1,4 +1,4 @@
-import type { Config } from "tailwindcss"
+import type { Config } from "tailwindcss";
 
 const config = {
   darkMode: ["class"],
@@ -8,6 +8,13 @@ const config = {
     "./app/**/*.{ts,tsx}",
     "./src/**/*.{ts,tsx}",
     "*.{js,ts,jsx,tsx,mdx}",
+  ],
+  safelist: [
+    'bg-orange-400',
+    'bg-orange-500', 
+    'bg-orange-600',
+    'bg-red-500',
+    'bg-blue-500'
   ],
   prefix: "",
   theme: {
@@ -19,6 +26,9 @@ const config = {
       },
     },
     extend: {
+      fontFamily: {
+        sans: ["InterVariable", "sans-serif"], // Fuente moderna y adaptable
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
@@ -53,10 +63,17 @@ const config = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
-        // Custom color for the button
+        // Custom status colors usando variables CSS
+        status: {
+          active: "hsl(var(--status-active))",
+          inactive: "hsl(var(--status-inactive))",
+          pending: "hsl(var(--status-pending))",
+        },
+        // Colores anaranjados personalizados
         orange: {
-          600: "#E65100", // A shade of orange that matches the image
-          700: "#BF360C", // A darker shade for hover state
+          400: "#fb923c", 
+          500: "#f97316",
+          600: "#ff6600", // nuestro anaranjado específico
         },
       },
       borderRadius: {
@@ -81,6 +98,6 @@ const config = {
     },
   },
   plugins: [require("tailwindcss-animate")],
-} satisfies Config
+} satisfies Config;
 
-export default config
+export default config;

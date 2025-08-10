@@ -1,1 +1,13 @@
-DATABASE_URL="mysql://root:Deust1zero2@localhost:3306/test"
+# MySQL root password (obligatorio para el contenedor)
+MYSQL_ROOT_PASSWORD=your_root_password_here
+
+# Base de datos que será creada automáticamente
+MYSQL_DATABASE=test
+
+# Usuario adicional que será creado (opcional)
+MYSQL_USER=your_user_here
+MYSQL_PASSWORD=your_user_password_here
+
+# URL de conexión (usado por ORMs o apps)
+# Formato: mysql://USER:PASSWORD@HOST:PORT/DATABASE
+DATABASE_URL="mysql://your_user_here:your_user_password_here@localhost:3306/your_database_name_here"

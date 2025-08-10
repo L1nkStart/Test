@@ -1,4 +1,3 @@
-// app/page.tsx
 import { redirect } from "next/navigation";
 
 /**
@@ -9,12 +8,25 @@ import { redirect } from "next/navigation";
  * lo cual es ideal para redirecciones.
  */
 export default function HomePage() {
-    // Redirige al usuario a la página de login.
-    // 'redirect' es una función de Next.js que funciona en Server Components
-    // y Server Actions para realizar redirecciones del lado del servidor.
-    redirect("/login");
+  // Redirige al usuario a la página de login.
+  // 'redirect' es una función de Next.js que funciona en Server Components
+  // y Server Actions para realizar redirecciones del lado del servidor.
+  redirect("/login");
 
-    // Este componente no necesita renderizar nada, ya que la redirección
-    // detiene el renderizado y envía una cabecera de redirección al navegador.
-    return null;
+  // Este componente no necesita renderizar nada, ya que la redirección
+  // detiene el renderizado y envía una cabecera de redirección al navegador.
+  return null;
 }
+
+// import { redirect } from "next/navigation";
+// import { getFullUserSession } from "@/lib/auth";
+
+// export default async function HomePage() {
+//   const session = await getFullUserSession();
+
+//   if (session) {
+//     redirect("/dashboard");
+//   } else {
+//     redirect("/login");
+//   }
+// }
