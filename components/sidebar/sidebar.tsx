@@ -33,7 +33,8 @@ export function AppSidebar() {
 
       <UserOptions userEmail={userEmail} isMobile={isMobile} />
 
-      <SidebarRail />
+      {/* Lo veo a dejar comentado, el que se pueda colapsar el sidebar me complicó unos estilos xd */}
+      {/* <SidebarRail /> */}
     </Sidebar>
   )
 }
