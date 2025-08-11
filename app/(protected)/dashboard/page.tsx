@@ -1,397 +1,321 @@
-"use client"
-
-import { useState, useEffect } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
+import type React from "react"
+import type { Metadata } from "next"
+import Link from "next/link"
 import { Badge } from "@/components/ui/badge"
-import { useToast } from "@/hooks/use-toast"
-import { InsuranceHolderForm } from "@/components/insurance-holder-form"
-import { Search, Shield, Users, FileText, Edit, Trash2, Plus } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Progress } from "@/components/ui/progress"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { ArrowRight, BarChart3, CalendarClock, Building2, Filter, List, Shield, TrendingUp, Users } from "lucide-react"
+import { getInsuranceHoldersSummary } from "@/lib/holders"
 
-interface InsuranceHolder {
-    id: string
-    ci: string
-    name: string
-    phone: string
-    email?: string
-    policyNumber?: string
-    insuranceCompany?: string
-    policyType?: string
-    policyStatus?: string
-    coverageType?: string
-    maxCoverageAmount?: number
-    usedCoverageAmount?: number
-    totalCases: number
-    totalPatients: number
-    isActive: boolean
+export const metadata: Metadata = {
+  title: "Panel",
+  description: "Resumen operativo y accesos rápidos",
 }
 
-export default function InsuranceHoldersPage() {
-    const [holders, setHolders] = useState<InsuranceHolder[]>([])
-    const [filteredHolders, setFilteredHolders] = useState<InsuranceHolder[]>([])
-    const [searchTerm, setSearchTerm] = useState("")
-    const [loading, setLoading] = useState(true)
-    const [error, setError] = useState<string | null>(null)
-    const [isFormOpen, setIsFormOpen] = useState(false)
-    const [editingHolder, setEditingHolder] = useState<InsuranceHolder | null>(null)
-    const [currentUserRole, setCurrentUserRole] = useState<string | null>(null)
-    const { toast } = useToast()
+export default async function DashboardPage() {
+  const summary = await getInsuranceHoldersSummary()
+  const holders = summary.totals.holders
+  const active = summary.totals.activePolicies
+  const totalMax = summary.coverage.totalMax
+  const totalUsed = summary.coverage.totalUsed
+  const usedPct = totalMax > 0 ? Math.min(100, Math.round((totalUsed / totalMax) * 100)) : 0
 
-    const fetchHolders = async () => {
-        setLoading(true)
-        setError(null)
-        try {
-            const response = await fetch("/api/insurance-holders")
-            if (!response.ok) {
-                throw new Error(`Failed to fetch insurance holders: ${response.statusText}`)
-            }
-            const data = await response.json()
-            setHolders(data)
-            setFilteredHolders(data)
-        } catch (err: any) {
-            setError(err.message || "An unexpected error occurred.")
-            toast({
-                title: "Error",
-                description: err.message || "Failed to load insurance holders.",
-                variant: "destructive",
-            })
-        } finally {
-            setLoading(false)
-        }
-    }
+  return (
+    <main className="flex flex-col gap-6">
+      <header className="flex items-start justify-between gap-4">
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight">Panel</h1>
+          <p className="text-sm text-muted-foreground">Resumen del sistema y accesos rápidos a titulares de seguro.</p>
+        </div>
+        <div className="flex gap-2">
+          <Button asChild>
+            <Link href="/insurance-holders">
+              <List className="h-4 w-4 mr-2" />
+              Ver titulares
+            </Link>
+          </Button>
+          <Button asChild variant="outline">
+            <Link href="/insurance-holders?status=Activo">
+              <Filter className="h-4 w-4 mr-2" />
+              Activos
+            </Link>
+          </Button>
+        </div>
+      </header>
 
-    const fetchCurrentUserRole = async () => {
-        try {
-            const response = await fetch("/api/current-user-role")
-            if (response.ok) {
-                const data = await response.json()
-                setCurrentUserRole(data.role || null)
-            }
-        } catch (error) {
-            console.error("Error fetching user role:", error)
-        }
-    }
+      {/* KPIs + últimos 7 días */}
+      <section className="grid grid-cols-1 gap-4 md:grid-cols-5">
+        <Kpi title="Total Titulares" icon={<Shield className="h-4 w-4" />} value={holders} />
+        <Kpi title="Pólizas Activas" icon={<TrendingUp className="h-4 w-4" />} value={active} />
+        <Kpi
+          title="Cobertura Usada"
+          icon={<Users className="h-4 w-4" />}
+          valueLabel={`${formatCurrency(totalUsed)} / ${formatCurrency(totalMax)}`}
+          progress={usedPct}
+        />
+        <Kpi title="Creados (7d)" icon={<CalendarClock className="h-4 w-4" />} value={summary.totals.created7d} />
+        <Kpi title="Actualizados (7d)" icon={<CalendarClock className="h-4 w-4" />} value={summary.totals.updated7d} />
+      </section>
 
-    useEffect(() => {
-        fetchHolders()
-        fetchCurrentUserRole()
-    }, [])
-
-    useEffect(() => {
-        const filtered = holders.filter(
-            (holder) =>
-                holder.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                holder.ci.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                holder.phone.includes(searchTerm) ||
-                (holder.email && holder.email.toLowerCase().includes(searchTerm.toLowerCase())) ||
-                (holder.policyNumber && holder.policyNumber.toLowerCase().includes(searchTerm.toLowerCase())),
-        )
-        setFilteredHolders(filtered)
-    }, [searchTerm, holders])
-
-    const handleCreateHolder = async (newHolderData: any) => {
-        try {
-            const response = await fetch("/api/insurance-holders", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(newHolderData),
-            })
-
-            if (!response.ok) {
-                const errorData = await response.json()
-                throw new Error(errorData.error || "Failed to create insurance holder.")
-            }
-
-            toast({
-                title: "Éxito",
-                description: "Titular de seguro creado correctamente.",
-                variant: "default",
-            })
-            fetchHolders()
-        } catch (err: any) {
-            toast({
-                title: "Error",
-                description: err.message || "Error al crear el titular de seguro.",
-                variant: "destructive",
-            })
-        }
-    }
-
-    const handleUpdateHolder = async (updatedHolderData: any) => {
-        if (!editingHolder) return
-
-        try {
-            const response = await fetch(`/api/insurance-holders?id=${editingHolder.id}`, {
-                method: "PUT",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(updatedHolderData),
-            })
-
-            if (!response.ok) {
-                const errorData = await response.json()
-                throw new Error(errorData.error || "Failed to update insurance holder.")
-            }
-
-            toast({
-                title: "Éxito",
-                description: "Titular de seguro actualizado correctamente.",
-                variant: "default",
-            })
-            fetchHolders()
-            setEditingHolder(null)
-        } catch (err: any) {
-            toast({
-                title: "Error",
-                description: err.message || "Error al actualizar el titular de seguro.",
-                variant: "destructive",
-            })
-        }
-    }
-
-    const handleDeleteHolder = async (id: string) => {
-        if (!confirm("¿Está seguro de que desea eliminar este titular de seguro?")) return
-
-        try {
-            const response = await fetch(`/api/insurance-holders?id=${id}`, {
-                method: "DELETE",
-            })
-
-            if (!response.ok) {
-                const errorData = await response.json()
-                throw new Error(errorData.error || "Failed to delete insurance holder.")
-            }
-
-            toast({
-                title: "Éxito",
-                description: "Titular de seguro eliminado correctamente.",
-                variant: "default",
-            })
-            fetchHolders()
-        } catch (err: any) {
-            toast({
-                title: "Error",
-                description: err.message || "Error al eliminar el titular de seguro.",
-                variant: "destructive",
-            })
-        }
-    }
-
-    const openEditForm = (holder: InsuranceHolder) => {
-        setEditingHolder(holder)
-        setIsFormOpen(true)
-    }
-
-    const handleFormClose = () => {
-        setIsFormOpen(false)
-        setEditingHolder(null)
-    }
-
-    const getStatusColor = (status: string) => {
-        switch (status?.toLowerCase()) {
-            case "activo":
-                return "bg-green-100 text-green-800 border-green-200"
-            case "suspendido":
-                return "bg-yellow-100 text-yellow-800 border-yellow-200"
-            case "vencido":
-                return "bg-orange-100 text-orange-800 border-orange-200"
-            case "cancelado":
-                return "bg-red-100 text-red-800 border-red-200"
-            default:
-                return "bg-gray-100 text-gray-800 border-gray-200"
-        }
-    }
-
-    const formatCurrency = (amount?: number) => {
-        if (!amount) return "N/A"
-        return new Intl.NumberFormat("es-VE", {
-            style: "currency",
-            currency: "USD",
-        }).format(amount)
-    }
-
-    const canManageHolders = currentUserRole === "Superusuario" || currentUserRole === "Coordinador Regional"
-
-    if (loading) {
-        return <div className="flex justify-center items-center h-screen">Cargando titulares de seguro...</div>
-    }
-
-    if (error) {
-        return <div className="flex justify-center items-center h-screen text-red-500">{error}</div>
-    }
-
-    return (
-        <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-6">
-            <div className="flex items-center justify-between">
-                <div>
-                    <h1 className="font-semibold text-lg md:text-2xl">Titulares de Seguro</h1>
-                    <p className="text-muted-foreground">Gestión de titulares de pólizas de seguro</p>
-                </div>
-                {canManageHolders && (
-                    <Button onClick={() => setIsFormOpen(true)} className="bg-blue-600 hover:bg-blue-700 text-white">
-                        <Plus className="h-4 w-4 mr-2" />
-                        Crear Titular
-                    </Button>
-                )}
-            </div>
-
-            {/* Search */}
-            <Card>
-                <CardContent className="p-4">
-                    <div className="relative">
-                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                        <Input
-                            placeholder="Buscar por nombre, cédula, teléfono, email o número de póliza..."
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            className="pl-10"
-                        />
-                    </div>
-                </CardContent>
-            </Card>
-
-            {/* Statistics Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <Card>
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Total Titulares</CardTitle>
-                        <Shield className="h-4 w-4 text-muted-foreground" />
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold">{filteredHolders.length}</div>
-                    </CardContent>
-                </Card>
-                <Card>
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Pólizas Activas</CardTitle>
-                        <Shield className="h-4 w-4 text-green-600" />
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold">
-                            {filteredHolders.filter((h) => h.policyStatus === "Activo").length}
-                        </div>
-                    </CardContent>
-                </Card>
-                <Card>
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Total Pacientes</CardTitle>
-                        <Users className="h-4 w-4 text-muted-foreground" />
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold">{filteredHolders.reduce((sum, h) => sum + h.totalPatients, 0)}</div>
-                    </CardContent>
-                </Card>
-                <Card>
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Total Casos</CardTitle>
-                        <FileText className="h-4 w-4 text-muted-foreground" />
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold">{filteredHolders.reduce((sum, h) => sum + h.totalCases, 0)}</div>
-                    </CardContent>
-                </Card>
-            </div>
-
-            {/* Holders Table */}
-            <Card>
-                <CardHeader>
-                    <CardTitle>Listado de Titulares</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    {filteredHolders.length > 0 ? (
-                        <div className="overflow-x-auto">
-                            <Table>
-                                <TableHeader>
-                                    <TableRow>
-                                        <TableHead>Titular</TableHead>
-                                        <TableHead>Contacto</TableHead>
-                                        <TableHead>Póliza</TableHead>
-                                        <TableHead>Compañía</TableHead>
-                                        <TableHead>Estado</TableHead>
-                                        <TableHead>Cobertura</TableHead>
-                                        <TableHead>Pacientes</TableHead>
-                                        <TableHead>Casos</TableHead>
-                                        {canManageHolders && <TableHead>Acciones</TableHead>}
-                                    </TableRow>
-                                </TableHeader>
-                                <TableBody>
-                                    {filteredHolders.map((holder) => (
-                                        <TableRow key={holder.id}>
-                                            <TableCell>
-                                                <div>
-                                                    <div className="font-medium">{holder.name}</div>
-                                                    <div className="text-sm text-muted-foreground">{holder.ci}</div>
-                                                </div>
-                                            </TableCell>
-                                            <TableCell>
-                                                <div>
-                                                    <div className="text-sm">{holder.phone}</div>
-                                                    {holder.email && <div className="text-sm text-muted-foreground">{holder.email}</div>}
-                                                </div>
-                                            </TableCell>
-                                            <TableCell>
-                                                <div>
-                                                    <div className="text-sm font-medium">{holder.policyNumber || "N/A"}</div>
-                                                    <div className="text-sm text-muted-foreground">{holder.policyType || "N/A"}</div>
-                                                </div>
-                                            </TableCell>
-                                            <TableCell>{holder.insuranceCompany || "N/A"}</TableCell>
-                                            <TableCell>
-                                                <Badge variant="outline" className={getStatusColor(holder.policyStatus || "")}>
-                                                    {holder.policyStatus || "N/A"}
-                                                </Badge>
-                                            </TableCell>
-                                            <TableCell>
-                                                <div>
-                                                    <div className="text-sm font-medium">{holder.coverageType || "N/A"}</div>
-                                                    <div className="text-sm text-muted-foreground">
-                                                        {formatCurrency(holder.maxCoverageAmount)}
-                                                    </div>
-                                                </div>
-                                            </TableCell>
-                                            <TableCell>
-                                                <Badge variant="secondary">{holder.totalPatients}</Badge>
-                                            </TableCell>
-                                            <TableCell>
-                                                <Badge variant="secondary">{holder.totalCases}</Badge>
-                                            </TableCell>
-                                            {canManageHolders && (
-                                                <TableCell>
-                                                    <div className="flex gap-2">
-                                                        <Button variant="outline" size="sm" onClick={() => openEditForm(holder)}>
-                                                            <Edit className="h-4 w-4" />
-                                                        </Button>
-                                                        <Button variant="destructive" size="sm" onClick={() => handleDeleteHolder(holder.id)}>
-                                                            <Trash2 className="h-4 w-4" />
-                                                        </Button>
-                                                    </div>
-                                                </TableCell>
-                                            )}
-                                        </TableRow>
-                                    ))}
-                                </TableBody>
-                            </Table>
-                        </div>
-                    ) : (
-                        <p className="text-muted-foreground text-center py-8">No hay titulares de seguro para mostrar.</p>
-                    )}
-                </CardContent>
-            </Card>
-
-            {/* Form Dialog */}
-            {isFormOpen && (
-                <InsuranceHolderForm
-                    isOpen={isFormOpen}
-                    onClose={handleFormClose}
-                    onSave={editingHolder ? handleUpdateHolder : handleCreateHolder}
-                    initialData={editingHolder}
-                />
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
+        {/* Gráfica por estado */}
+        <Card className="xl:col-span-1">
+          <CardHeader className="flex items-center justify-between">
+            <CardTitle className="text-base flex items-center gap-2">
+              <BarChart3 className="h-4 w-4 text-[hsl(var(--accent))]" />
+              Distribución por estado
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {summary.statusDistribution.length === 0 ? (
+              <p className="text-sm text-muted-foreground">Sin datos de estado.</p>
+            ) : (
+              <StatusBarChart data={summary.statusDistribution} />
             )}
-        </main>
-    )
+          </CardContent>
+        </Card>
+
+        {/* Top compañías */}
+        <Card className="xl:col-span-1">
+          <CardHeader>
+            <CardTitle className="text-base">Top Compañías</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {summary.topCompanies.length === 0 ? (
+              <p className="text-sm text-muted-foreground">Sin datos de compañías.</p>
+            ) : (
+              summary.topCompanies.map((c) => (
+                <div key={c.name} className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Building2 className="h-4 w-4 text-[hsl(var(--accent))]" />
+                    <span className="text-sm">{c.name}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Badge variant="secondary">{c.count}</Badge>
+                    <Button asChild size="sm" variant="ghost" className="h-7 px-2">
+                      <Link href={`/insurance-holders?company=${encodeURIComponent(c.name)}`}>
+                        Ver
+                        <ArrowRight className="h-3.5 w-3.5 ml-1" />
+                      </Link>
+                    </Button>
+                  </div>
+                </div>
+              ))
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Alertas de vencimiento */}
+        <Card className="xl:col-span-1 overflow-hidden">
+          <CardHeader>
+            <CardTitle className="text-base">Pólizas por vencer (≤ 30 días)</CardTitle>
+          </CardHeader>
+          <CardContent className="p-0">
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader className="bg-muted/30 table-header-floating">
+                  <TableRow>
+                    <TableHead>Titular</TableHead>
+                    <TableHead>Compañía</TableHead>
+                    <TableHead className="text-right">Vence en</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {summary.expiringSoon.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={3} className="text-center py-8 text-muted-foreground">
+                        No hay pólizas por vencer pronto.
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    summary.expiringSoon.map((r) => (
+                      <TableRow key={r.id} className="hover:bg-muted/40">
+                        <TableCell className="font-medium">
+                          {r.name}
+                          <div className="text-xs text-muted-foreground">{r.policyNumber || "—"}</div>
+                        </TableCell>
+                        <TableCell className="text-sm">{r.insuranceCompany || "—"}</TableCell>
+                        <TableCell className="text-right">
+                          <Badge variant={badgeByDays(r.daysLeft)}>
+                            {r.daysLeft != null ? `${r.daysLeft} días` : "—"}
+                          </Badge>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Recientes */}
+      <Card className="overflow-hidden">
+        <CardHeader>
+          <CardTitle className="text-base">Titulares recientes</CardTitle>
+        </CardHeader>
+        <CardContent className="p-0">
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader className="bg-muted/30 table-header-floating">
+                <TableRow>
+                  <TableHead className="min-w-[220px]">Titular</TableHead>
+                  <TableHead className="min-w-[180px]">Contacto</TableHead>
+                  <TableHead className="min-w-[140px]">Póliza</TableHead>
+                  <TableHead className="min-w-[160px]">Compañía</TableHead>
+                  <TableHead className="min-w-[120px]">Estado</TableHead>
+                  <TableHead className="min-w-[200px]">Cobertura</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {summary.recent.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                      Sin registros recientes.
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  summary.recent.map((h) => {
+                    const used = Number(h.usedCoverageAmount || 0)
+                    const max = Number(h.maxCoverageAmount || 0)
+                    const pct = max > 0 ? Math.min(100, Math.round((used / max) * 100)) : 0
+                    return (
+                      <TableRow key={h.id} className="hover:bg-muted/40">
+                        <TableCell>
+                          <div className="flex flex-col">
+                            <span className="font-medium">{h.name}</span>
+                            <span className="text-xs text-muted-foreground">{h.ci}</span>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex flex-col">
+                            <span className="text-sm">{h.phone}</span>
+                            {h.email ? <span className="text-xs text-muted-foreground">{h.email}</span> : null}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex flex-col">
+                            <span className="text-sm font-medium">{h.policyNumber || "N/A"}</span>
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-sm">{h.insuranceCompany || "N/A"}</TableCell>
+                        <TableCell>
+                          <StatusBadge status={h.policyStatus} />
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex flex-col gap-1">
+                            <div className="flex items-center justify-between text-xs">
+                              <span className="text-muted-foreground">{h.coverageType || "Cobertura"}</span>
+                              <span className="font-medium">
+                                {formatCurrency(used)} / {formatCurrency(max)}
+                              </span>
+                            </div>
+                            <Progress value={pct} className="h-2.5 rounded-full" />
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    )
+                  })
+                )}
+              </TableBody>
+            </Table>
+          </div>
+        </CardContent>
+      </Card>
+    </main>
+  )
+}
+
+function Kpi({
+  title,
+  icon,
+  value,
+  valueLabel,
+  progress,
+}: {
+  title: string
+  icon: React.ReactNode
+  value?: number
+  valueLabel?: string
+  progress?: number
+}) {
+  return (
+    <Card className="kpi-card">
+      <CardHeader className="flex items-center justify-between space-y-0 pb-2">
+        <CardTitle className="text-sm font-medium">{title}</CardTitle>
+        <div className="kpi-icon">{icon}</div>
+      </CardHeader>
+      <CardContent className="space-y-2">
+        {typeof value === "number" ? <div className="text-2xl font-semibold">{value}</div> : null}
+        {valueLabel ? <div className="text-sm text-muted-foreground">{valueLabel}</div> : null}
+        {typeof progress === "number" ? <Progress value={progress} className="h-2.5 rounded-full" /> : null}
+      </CardContent>
+    </Card>
+  )
+}
+
+function StatusBarChart({ data }: { data: Array<{ status: string; count: number }> }) {
+  const max = Math.max(1, ...data.map((d) => d.count || 0))
+  const colors: Record<string, string> = {
+    Activo: "bg-[hsl(var(--success))]",
+    Suspendido: "bg-[hsl(var(--warning))]",
+    Vencido: "bg-orange-500",
+    Cancelado: "bg-[hsl(var(--danger))]",
+  }
+  return (
+    <div className="space-y-3">
+      {data.map((d) => (
+        <div key={d.status} className="flex items-center gap-3">
+          <div className="w-28 text-xs text-muted-foreground">{d.status || "—"}</div>
+          <div className="flex-1 h-3 rounded bg-muted">
+            <div
+              className={`h-3 rounded ${colors[d.status] || "bg-gray-400"}`}
+              style={{ width: `${Math.round((d.count / max) * 100)}%` }}
+              aria-label={`${d.status}: ${d.count}`}
+              role="img"
+            />
+          </div>
+          <div className="w-8 text-right text-sm tabular-nums">{d.count}</div>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+function StatusBadge({ status }: { status?: string | null }) {
+  const s = (status || "").toLowerCase()
+  const cls =
+    s === "activo"
+      ? "bg-[hsl(var(--success))]/15 text-[hsl(var(--success))] border-[hsl(var(--success))]/20"
+      : s === "suspendido"
+        ? "bg-[hsl(var(--warning))]/15 text-[hsl(var(--warning))] border-[hsl(var(--warning))]/25"
+        : s === "vencido"
+          ? "bg-orange-100 text-orange-800 border-orange-200"
+          : s === "cancelado"
+            ? "bg-[hsl(var(--danger))]/15 text-[hsl(var(--danger))] border-[hsl(var(--danger))]/25"
+            : "bg-gray-100 text-gray-800 border-gray-200"
+  return (
+    <Badge variant="outline" className={cls + " capitalize"}>
+      {status || "N/A"}
+    </Badge>
+  )
+}
+
+function badgeByDays(daysLeft: number | null) {
+  if (daysLeft == null) return "secondary"
+  if (daysLeft <= 7) return "destructive" /* rojo */
+  if (daysLeft <= 14) return "default" /* gris */
+  return "secondary"
+}
+
+function formatCurrency(amount?: number | null) {
+  if (amount == null) return "N/A"
+  try {
+    return new Intl.NumberFormat("es-VE", { style: "currency", currency: "USD" }).format(Number(amount))
+  } catch {
+    return `$${Number(amount).toFixed(2)}`
+  }
 }
