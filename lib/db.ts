@@ -11,6 +11,12 @@ if (!databaseUrl) {
 
 // Crea un pool de conexiones para MySQL.
 // mysql2/promise puede parsear directamente una cadena de conexión URL válida.
-const pool = mysql.createPool(databaseUrl);
+const pool = mysql.createPool({
+    uri: databaseUrl,
+    charset: 'utf8mb4',
+    connectionLimit: 10,
+    acquireTimeout: 60000,
+    timeout: 60000,
+});
 
 export default pool;

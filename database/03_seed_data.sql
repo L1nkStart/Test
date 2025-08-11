@@ -1,3 +1,8 @@
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!50503 SET NAMES utf8mb4 */;
+
 -- Usar la base de datos de destino
 USE test;
 
@@ -67,3 +72,7 @@ VALUES
 ('v9w2x4y5-z6a7-8901-2345-678901abcdi8', 'V-31331331', 'Paola Vega', '0416-9012345', 'paola.v@email.com', '1997-11-17', 27, 'Femenino', 'San Carlos, Centro', 'San Carlos', 'Cojedes', 'POL-048', 'Seguros Caracas', 'Salud', 'Activo', '2023-08-18', '2024-08-17', 'Cobertura Amplia', 220000.00, 800.00, 'Jesus Vega', '0412-0987654', 'A+', NULL, NULL, 1, NULL),
 ('w9x2y4z5-a6b7-8901-2345-678901abcdi9', 'V-21421421', 'Jesus Mendoza', '0414-0123456', 'jesus.m@email.com', '1991-08-01', 34, 'Masculino', 'Tinaco, Calle Bolivar', 'Tinaco', 'Cojedes', 'POL-049', 'Mercantil Seguros', 'Vida', 'Activo', '2023-01-01', '2026-12-31', 'Fallecimiento', 350000.00, 0.00, 'Ximena Mendoza', '0424-9876543', 'B+', 'Aspirina', NULL, 1, NULL),
 ('x9y2z4a5-b6c7-8901-2345-678901abcdj0', 'V-32532532', 'Ximena Castro', '0412-1234567', 'ximena.c@email.com', '2002-02-02', 23, 'Femenino', 'El Pao, Centro', 'El Pao', 'Cojedes', 'POL-050', 'Banesco Seguros', 'Hogar', 'Activo', '2024-06-12', '2025-06-11', 'Incendio y Robo', 88000.00, 0.00, 'Bruno Castro', '0416-8765432', 'AB+', NULL, NULL, 1, NULL);
+
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;

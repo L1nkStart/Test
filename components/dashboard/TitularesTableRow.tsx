@@ -2,6 +2,7 @@
 
 import React from "react";
 import { TableCell, TableRow } from "@/components/ui/table";
+import { Building2 } from "lucide-react";
 
 interface InsuranceHolder {
   id: string;
@@ -24,7 +25,7 @@ interface TitularesTableRowProps {
 }
 
 export function TitularesTableRow({ titular }: TitularesTableRowProps) {
-  const formattedCI = titular.ci ? `V-${titular.ci}` : "";
+  const formattedCI = titular.ci || "";
 
   const formattedCoverageAmount =
     titular.maxCoverageAmount !== undefined
@@ -36,35 +37,38 @@ export function TitularesTableRow({ titular }: TitularesTableRowProps) {
 
   return (
     <TableRow>
-      {/* Titular */}
-      <TableCell className="pr-1 pl-6 w-[21%] text-foreground font-medium">
-        <div>{titular.name}</div>
+      {/* Titular - 20% */}
+      <TableCell className="px-3 lg:px-3 w-[20%] text-foreground font-medium">
+        <div className="truncate text-sm lg:text-base lg:font-bold">{titular.name}</div>
         {formattedCI && (
-          <div className="text-sm text-muted-foreground">{formattedCI}</div>
+          <div className="text-xs lg:text-sm text-muted-foreground">{formattedCI}</div>
         )}
       </TableCell>
 
-      {/* Contacto */}
-      <TableCell className="pl-1 pr-4 w-[20%] text-muted-foreground">
-        <div>{titular.phone}</div>
-        {titular.email && <div>{titular.email}</div>}
+      {/* Contacto - 22% */}
+      <TableCell className="px-3 lg:px-3 w-[22%] text-muted-foreground">
+        <div className="text-sm lg:text-base lg:font-bold lg:text-foreground">{titular.phone}</div>
+        {titular.email && <div className="text-xs lg:text-sm truncate">{titular.email}</div>}
       </TableCell>
 
-      {/* Póliza */}
-      <TableCell className="pl-1 pr-6 w-[12%] text-muted-foreground">
-        <div>{titular.policyNumber}</div>
-        {titular.policyType && <div>{titular.policyType}</div>}
+      {/* Póliza - 11% */}
+      <TableCell className="px-3 lg:px-3 w-[11%] text-muted-foreground">
+        <div className="font-medium text-sm lg:text-base lg:font-bold lg:text-foreground">{titular.policyNumber}</div>
+        {titular.policyType && <div className="text-xs lg:text-sm">{titular.policyType}</div>}
       </TableCell>
 
-      {/* Compañía */}
-      <TableCell className="px-6 w-[14%] text-muted-foreground">
-        {titular.insuranceCompany}
+      {/* Compañía - 15% */}
+      <TableCell className="pr-2 pl-3 lg:px-3 w-[15%] text-muted-foreground">
+        <div className="flex items-center gap-2">
+          <Building2 className="h-4 w-4 text-muted-foreground/60 flex-shrink-0" />
+          <div className="truncate text-sm lg:text-base">{titular.insuranceCompany}</div>
+        </div>
       </TableCell>
 
-      {/* Estado con más separación desde Compañía */}
-      <TableCell className="pl-8 pr-6 w-[8%]">
+      {/* Estado - 8% */}
+      <TableCell className="px-2 lg:px-2 w-[8%]">
         <span
-          className={`px-3 py-1 rounded-full font-semibold text-sm ${
+          className={`px-2 py-1 rounded-full font-semibold text-xs whitespace-nowrap ${
             titular.policyStatus === "Activo"
               ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
               : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"
@@ -74,21 +78,21 @@ export function TitularesTableRow({ titular }: TitularesTableRowProps) {
         </span>
       </TableCell>
 
-      {/* Cobertura */}
-      <TableCell className="px-4 w-[13%] text-muted-foreground">
-        <div>{titular.coverageType}</div>
+      {/* Cobertura - 12% */}
+      <TableCell className="pr-6 pl-3 lg:px-3 w-[12%] text-muted-foreground">
+        <div className="text-sm whitespace-nowrap lg:font-bold lg:text-foreground">{titular.coverageType}</div>
         {formattedCoverageAmount && (
-          <div className="text-sm">{formattedCoverageAmount}</div>
+          <div className="text-sm font-medium whitespace-nowrap">{formattedCoverageAmount}</div>
         )}
       </TableCell>
 
-      {/* Pacientes */}
-      <TableCell className="text-right pr-10 w-[6%] text-foreground font-medium">
+      {/* Pacientes - 4% */}
+      <TableCell className="px-8 lg:px-8 w-[4%] text-right text-foreground font-medium text-sm lg:text-base">
         {titular.totalPatients?.toLocaleString() ?? 0}
       </TableCell>
 
-      {/* Casos */}
-      <TableCell className="text-right pl-12 w-[6%] text-foreground font-medium">
+      {/* Casos - 4% */}
+      <TableCell className="pl-8 pr-3 lg:px-8 w-[4%] text-right text-foreground font-medium text-sm lg:text-base">
         {titular.totalCases?.toLocaleString() ?? 0}
       </TableCell>
     </TableRow>

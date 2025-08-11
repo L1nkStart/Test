@@ -5,6 +5,7 @@ import type React from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { usePathname } from "next/navigation"
+import { useDashboardContent } from "@/hooks/useDashboardContent"
 import {
   ListTodo,
   Users,
@@ -62,95 +63,42 @@ export function AppSidebar({
 }: { userRole: string | null; userEmail: string | null; hide?: boolean }) {
   const pathname = usePathname()
   const { setOpen } = useSidebar()
+  const { navigateToSection } = useDashboardContent()
 
   const navSections: NavSection[] = [
     {
-      title: "Casos Médicos",
+      title: "Navegación",
       items: [
         {
-          title: "Listado de casos",
-          href: "/dashboard",
+          title: "Titulares",
+          href: "/dashboard/titulares",
+          icon: Shield,
+          roles: ["Superusuario"],
+        },
+        {
+          title: "Casos",
+          href: "/dashboard/casos",
           icon: ListTodo,
           roles: ["Superusuario"],
         },
         {
-          title: "Nuevo Caso",
-          href: "/cases/new",
-          icon: PlusCircle,
-          roles: ["Superusuario"],
-        },
-        {
-          title: "Mis Casos Asignados",
-          href: "/analyst-dashboard",
+          title: "Reportes",
+          href: "/dashboard/reportes",
           icon: FileText,
           roles: ["Superusuario"],
         },
         {
-          title: "Casos Pendientes Auditoría",
-          href: "/auditor-dashboard",
-          icon: ClipboardList,
-          roles: ["Superusuario"],
-
-        },
-        {
-          title: "Casos Anulados",
-          href: "/cancelled-cases",
-          icon: XCircle,
-          roles: ["Superusuario"],
-        },
-      ],
-    },
-    {
-      title: "Maestros",
-
-      items: [
-        {
-          title: "Convenios",
-          href: "/clients",
+          title: "Configuración",
+          href: "/dashboard/configuracion",
           icon: Building2,
           roles: ["Superusuario"],
         },
         {
-          title: "Pacientes",
-          href: "/patients",
+          title: "Ayuda",
+          href: "/dashboard/ayuda",
           icon: UserCheck,
           roles: ["Superusuario"],
         },
-        {
-          title: "Titulares de Seguro",
-          href: "/insurance-holders",
-          icon: Shield,
-          roles: ["Superusuario"],
-
-        },
-        {
-          title: "Compañías de Seguros",
-          href: "/insurance-companies",
-          icon: Building,
-          roles: ["Superusuario"],
-
-        },
-      ],
-
-    },
-    {
-      title: "Financiero",
-      items: [
-        {
-          title: "Facturación",
-          href: "/invoices",
-          icon: DollarSign,
-          roles: ["Superusuario"],
-
-        },
-        {
-          title: "Fondo Incurrido",
-          href: "/incurred-fund",
-          icon: CreditCard,
-          roles: ["Superusuario"],
-
-        },
-        { title: "Pagos", href: "/payments", icon: Banknote, roles: ["Superusuario"] },
       ],
     }
   ]
@@ -171,7 +119,7 @@ export function AppSidebar({
   return (
     <Sidebar>
       <SidebarHeader>
-        <Link href="/dashboard" className="flex items-center gap-2 px-2 py-4">
+        <Link href="/dashboard/titulares" className="flex items-center gap-2 px-2 py-4">
           <Image src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRvaO09WlVAzYrDYJc_F8gz1RlQPNuWg8oJKQ&s" alt="Logo" width={40} height={40} className="rounded-full" />
           <span className="text-lg font-semibold">CGM Sistema</span>
         </Link>
@@ -179,19 +127,35 @@ export function AppSidebar({
       <SidebarContent>
         {filteredNavSections.map((section) => (
           <SidebarGroup key={section.title}>
-            <SidebarGroupLabel>{section.title}</SidebarGroupLabel>
+            {section.title === "Navegación" ? (
+              <div className="flex items-center gap-3 pl-2 py-1">
+                <div className="w-1 h-6 bg-primary rounded-full"></div>
+                <SidebarGroupLabel className="text-base font-semibold">{section.title}</SidebarGroupLabel>
+              </div>
+            ) : (
+              <SidebarGroupLabel>{section.title}</SidebarGroupLabel>
+            )}
             <SidebarGroupContent>
               <SidebarMenu>
-                {section.items.map((item) => (
-                  <SidebarMenuItem key={item.href}>
-                    <SidebarMenuButton asChild isActive={pathname.startsWith(item.href)}>
-                      <Link href={item.href}>
+                {section.items.map((item) => {
+                  const sectionKey = item.href.split('/').pop();
+                  return (
+                    <SidebarMenuItem key={item.href}>
+                      <SidebarMenuButton 
+                        onClick={() => {
+                          if (sectionKey && ['titulares', 'casos', 'reportes', 'configuracion', 'ayuda'].includes(sectionKey)) {
+                            navigateToSection(sectionKey as any);
+                            setOpen(false); // Cerrar sidebar en mobile
+                          }
+                        }}
+                        isActive={pathname.startsWith(item.href)}
+                      >
                         <item.icon />
                         <span>{item.title}</span>
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                ))}
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  );
+                })}
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>

@@ -9,97 +9,96 @@
 }
 
 @layer base {
-  /* ───────────── LIGHT THEME ───────────── */
+  /* ============= LIGHT ============= */
   :root {
+    /* Base */
     --background: 0 0% 99%;
-    --foreground: 222 26% 20%;
+    --foreground: 224 16% 18%;
 
+    /* Superficie */
     --card: 0 0% 100%;
-    --card-foreground: 222 26% 20%;
-
-    --muted: 0 0% 96%;
-    --muted-foreground: 222 10% 45%;
-
+    --card-foreground: 224 16% 18%;
+    --muted: 220 12% 96%;
+    --muted-foreground: 220 9% 46%;
     --popover: 0 0% 100%;
-    --popover-foreground: 222 26% 20%;
+    --popover-foreground: 224 16% 18%;
 
-    --primary: 258 84% 64%;
-    --primary-foreground: 0 0% 98%;
+    /* Marca (violet CGM) */
+    --primary: 255 86% 65%; /* ~#7C4DFF / violet-500 afinado */
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 0 0% 96%;
-    --secondary-foreground: 222 26% 20%;
+    /* Secundarios/acentos */
+    --secondary: 220 12% 96%;
+    --secondary-foreground: 224 16% 18%;
+    --accent: 220 12% 96%;
+    --accent-foreground: 224 16% 18%;
 
-    --accent: 0 0% 96%;
-    --accent-foreground: 222 26% 20%;
-
+    /* Alertas */
     --destructive: 0 72% 55%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 0 0% 88%;
-    --input: 0 0% 88%;
-    --ring: 258 84% 64%;
+    /* Bordes/inputs/ring */
+    --border: 220 11% 88%;
+    --input: 220 11% 88%;
+    --ring: 255 86% 65%;
 
     --radius: 0.75rem;
 
-    --status-active: 142 55% 42%;
+    /* Estados */
+    --status-active: 142 50% 42%;
     --status-inactive: 0 68% 52%;
-    --status-pending: 38 90% 50%;
+    --status-pending: 38 92% 50%;
 
-    --sidebar-active-indicator: 258 84% 64%;
-    --icon-default: 222 10% 46%;
-    --icon-success: 142 55% 42%;
+    /* Íconos */
+    --icon-default: 220 9% 46%;
   }
 
-  /* ───────────── DARK THEME ───────────── */
+  /* ============= DARK (coherente + elegante) ============= */
   .dark {
-    /* Fondo principal y texto */
-    --background: 225 15% 10%;
-    --foreground: 220 15% 96%;
+    /* Niveles de fondo (neutro/slate) → saltos suaves */
+    --background: 223 28% 10%; /* app bg */
+    --foreground: 220 15% 96%; /* texto principal */
 
-    /* Cartas y contenedores */
-    --card: 225 15% 14%;
+    --card: 223 22% 14%; /* panel */
     --card-foreground: 220 15% 96%;
 
-    --muted: 225 12% 18%;
-    --muted-foreground: 220 8% 70%;
+    --muted: 223 18% 16%; /* contenedor de secciones */
+    --muted-foreground: 220 10% 72%;
 
-    --popover: 225 15% 14%;
+    --popover: 223 22% 14%;
     --popover-foreground: 220 15% 96%;
 
-    /* Primario (morado elegante más profundo) */
-    --primary: 258 65% 60%;
+    /* Marca (violet más profundo para dark) */
+    --primary: 258 72% 62%; /* ~violet-500 ajustado a dark */
     --primary-foreground: 0 0% 100%;
 
-    /* Secundarios y acentos */
-    --secondary: 225 12% 20%;
+    /* Secundarios/acentos neutrales */
+    --secondary: 223 16% 20%;
     --secondary-foreground: 220 15% 96%;
-
-    --accent: 225 12% 22%;
+    --accent: 223 18% 22%;
     --accent-foreground: 220 15% 96%;
 
-    /* Estado destructivo */
-    --destructive: 0 62% 45%;
+    /* Alertas sobrias */
+    --destructive: 0 62% 46%;
     --destructive-foreground: 0 0% 100%;
 
-    /* Bordes y enfoque */
-    --border: 225 10% 26%;
-    --input: 225 10% 26%;
-    --ring: 258 65% 60%;
+    /* Bordes/inputs/ring (discretos pero claros) */
+    --border: 223 14% 24%;
+    --input: 223 14% 24%;
+    --ring: 258 72% 62%;
 
-    /* Colores de estado más refinados */
-    --status-active: 145 35% 50%; /* verde suave */
-    --status-inactive: 0 55% 55%; /* rojo elegante */
-    --status-pending: 38 65% 55%; /* ámbar cálido */
+    /* Estados contenidos (elegantes en dark) */
+    --status-active: 145 38% 48%; /* verde */
+    --status-inactive: 0 55% 56%; /* rojo */
+    --status-pending: 38 70% 55%; /* ámbar */
 
-    --sidebar-active-indicator: 258 65% 60%;
-    --icon-default: 220 8% 68%;
-    --icon-success: 145 35% 50%;
+    /* Íconos */
+    --icon-default: 220 10% 72%;
   }
 
   body {
     @apply bg-background text-foreground;
   }
-
   html {
     overflow-x: hidden;
   }

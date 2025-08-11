@@ -37,7 +37,7 @@ export default function LoginPage() {
           title: "Inicio de sesión exitoso",
           description: "Redirigiendo al dashboard...",
         });
-        router.push("/dashboard");
+        router.push("/dashboard/titulares");
       } else {
         const data = await response.json();
         toast({

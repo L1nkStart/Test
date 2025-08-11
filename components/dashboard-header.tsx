@@ -33,7 +33,7 @@ export async function DashboardHeader() {
 
   const navItems = [
     {
-      href: "/dashboard",
+      href: "/dashboard/titulares",
       label: "Dashboard",
       icon: HomeIcon,
       roles: ["Superusuario", "Coordinador Regional", "Analista Concertado", "Médico Auditor", "Jefe Financiero"],
@@ -63,40 +63,40 @@ export async function DashboardHeader() {
   const filteredNavItems = navItems.filter((item) => hasRequiredRole(userRole, item.roles))
 
   return (
-    <header className="flex h-14 lg:h-[60px] items-center gap-4 border-b bg-gray-100/40 px-6 dark:bg-gray-800/40">
+    <header className="flex h-14 sm:h-16 lg:h-[60px] items-center gap-2 sm:gap-4 border-b bg-gray-100/40 px-3 sm:px-4 lg:px-6 dark:bg-gray-800/40">
       <Sheet>
         <SheetTrigger asChild>
           <Button className="lg:hidden bg-transparent" size="icon" variant="outline">
-            <MenuIcon className="h-6 w-6" />
+            <MenuIcon className="h-5 w-5 sm:h-6 sm:w-6" />
             <span className="sr-only">Toggle navigation menu</span>
           </Button>
         </SheetTrigger>
-        <SheetContent side="left">
-          <Link className="flex items-center gap-2 font-semibold" href="#">
-            <Package2Icon className="h-6 w-6" />
-            <span className="">TEST System</span>
+        <SheetContent side="left" className="w-[280px] sm:w-[300px]">
+          <Link className="flex items-center gap-2 font-semibold text-sm sm:text-base" href="#">
+            <Package2Icon className="h-5 w-5 sm:h-6 sm:w-6" />
+            <span className="truncate">TEST System</span>
           </Link>
-          <div className="grid gap-2 py-6">
+          <div className="grid gap-2 py-4 sm:py-6">
             {filteredNavItems.map((item) => (
               <Link
                 key={item.href}
-                className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-gray-900 transition-all hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-50"
+                className="flex w-full items-center gap-2 sm:gap-3 rounded-lg px-2 sm:px-3 py-2 text-sm text-gray-900 transition-all hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-50"
                 href={item.href}
               >
-                <item.icon className="h-4 w-4" />
-                {item.label}
+                <item.icon className="h-4 w-4 flex-shrink-0" />
+                <span className="truncate">{item.label}</span>
               </Link>
             ))}
           </div>
         </SheetContent>
       </Sheet>
-      <div className="w-full flex-1">
-        <form>
-          <div className="relative">
+      <div className="flex-1 min-w-0">
+        <form className="hidden sm:block">
+          <div className="relative max-w-sm">
             <SearchIcon className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500 dark:text-gray-400" />
             <Input
-              className="w-full bg-white shadow-none appearance-none pl-8 md:w-2/3 lg:w-1/3 dark:bg-gray-950"
-              placeholder="Search..."
+              className="w-full bg-white shadow-none appearance-none pl-8 text-sm dark:bg-gray-950"
+              placeholder="Buscar..."
               type="search"
             />
           </div>
@@ -104,20 +104,24 @@ export async function DashboardHeader() {
       </div>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button className="overflow-hidden rounded-full bg-transparent" size="icon" variant="outline">
-            <Avatar>
+          <Button className="overflow-hidden rounded-full bg-transparent h-8 w-8 sm:h-10 sm:w-10" size="icon" variant="outline">
+            <Avatar className="h-7 w-7 sm:h-9 sm:w-9">
               <AvatarImage src="/placeholder-user.jpg" alt="User Avatar" />
-              <AvatarFallback>{session?.email ? session.email.charAt(0).toUpperCase() : "U"}</AvatarFallback>
+              <AvatarFallback className="text-xs sm:text-sm">
+                {session?.email ? session.email.charAt(0).toUpperCase() : "U"}
+              </AvatarFallback>
             </Avatar>
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          <DropdownMenuLabel>{session?.email || "Mi Cuenta"}</DropdownMenuLabel>
+        <DropdownMenuContent align="end" className="w-48 sm:w-56">
+          <DropdownMenuLabel className="truncate text-sm">
+            {session?.email || "Mi Cuenta"}
+          </DropdownMenuLabel>
           <DropdownMenuSeparator />
-          <DropdownMenuItem>Configuración</DropdownMenuItem>
-          <DropdownMenuItem>Soporte</DropdownMenuItem>
+          <DropdownMenuItem className="text-sm">Configuración</DropdownMenuItem>
+          <DropdownMenuItem className="text-sm">Soporte</DropdownMenuItem>
           <DropdownMenuSeparator />
-          <DropdownMenuItem>
+          <DropdownMenuItem className="text-sm">
             <form action={logoutAction} className="w-full">
               <button type="submit" className="w-full text-left">
                 Cerrar Sesión

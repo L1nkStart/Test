@@ -25,7 +25,7 @@ export default function HomePage() {
 //   const session = await getFullUserSession();
 
 //   if (session) {
-//     redirect("/dashboard");
+//     redirect("/dashboard/titulares");
 //   } else {
 //     redirect("/login");
 //   }

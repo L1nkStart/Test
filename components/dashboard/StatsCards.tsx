@@ -29,15 +29,16 @@ function StatCard({
 }: StatCardProps) {
   return (
     <Card className="bg-card text-card-foreground border border-border shadow-sm rounded-xl hover:shadow-md transition-shadow">
-      {/* Más alto, menos ancho */}
-      <CardHeader className="py-5 px-5">
-        <div className="flex items-center justify-between">
-          <p className="text-sm text-muted-foreground font-medium">{title}</p>
-          <Icon className={cn("h-5 w-5", iconClassName)} />
+      <CardHeader className="py-3 sm:py-4 lg:py-5 px-3 sm:px-4 lg:px-5">
+        <div className="flex items-center justify-between gap-2">
+          <p className="text-xs sm:text-sm lg:text-sm text-muted-foreground font-medium line-clamp-2 lg:line-clamp-none">
+            {title}
+          </p>
+          <Icon className={cn("h-4 w-4 sm:h-4 sm:w-4 lg:h-5 lg:w-5 flex-shrink-0", iconClassName)} />
         </div>
       </CardHeader>
-      <CardContent className="py-5 px-5">
-        <div className="text-3xl font-bold text-foreground">
+      <CardContent className="py-2 sm:py-3 lg:py-5 px-3 sm:px-4 lg:px-5">
+        <div className="text-xl sm:text-2xl lg:text-4xl font-bold text-foreground leading-tight">
           {value.toLocaleString()}
         </div>
       </CardContent>
@@ -54,7 +55,7 @@ export function StatsCards({ data }: StatsCardsProps) {
   };
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+    <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
       <StatCard
         title="Total Titulares"
         value={stats.totalTitulares}

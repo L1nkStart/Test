@@ -1,5 +1,5 @@
 import { DynamicContent } from "@/components/DynamicContent";
 
-export default function ConfiguracionPage() {
+export default function TitularesPage() {
   return <DynamicContent />;
 }
