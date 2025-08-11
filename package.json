@@ -59,6 +59,7 @@
     "server-only": "latest",
     "tailwind-merge": "^2.5.5",
     "tailwindcss-animate": "^1.0.7",
+    "use-debounce": "^10.0.5",
     "uuid": "latest",
     "vaul": "latest",
     "zod": "^3.24.1"
