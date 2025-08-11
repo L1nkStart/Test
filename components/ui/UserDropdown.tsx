@@ -1,97 +1,95 @@
-"use client"
+"use client";
 
-import React, { useEffect, useState } from "react"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import React, { useEffect, useState } from "react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Moon, Sun, LogOut, ChevronDown } from "lucide-react"
-import { useTheme } from "next-themes"
-import { logoutAction } from "@/app/actions"
-import { useToast } from "@/hooks/use-toast"
+} from "@/components/ui/dropdown-menu";
+import { Moon, Sun, LogOut, ChevronDown } from "lucide-react";
+import { useTheme } from "next-themes";
+import { logoutAction } from "@/app/actions";
+import { useToast } from "@/hooks/use-toast";
 
 interface UserData {
-  email?: string
-  name?: string
-  role?: string
+  email?: string;
+  name?: string;
+  role?: string;
 }
 
 export function UserDropdown() {
-  const { theme, setTheme } = useTheme()
-  const [user, setUser] = useState<UserData | null>(null)
-  const [mounted, setMounted] = useState(false)
-  const [isLoggingOut, setIsLoggingOut] = useState(false)
-  const { toast } = useToast()
+  const { theme, setTheme } = useTheme();
+  const [user, setUser] = useState<UserData | null>(null);
+  const [mounted, setMounted] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const { toast } = useToast();
 
   useEffect(() => {
-    setMounted(true)
-    fetchUserData()
-  }, [])
+    setMounted(true);
+    fetchUserData();
+  }, []);
 
   const fetchUserData = async () => {
     try {
-      const response = await fetch("/api/current-user-role")
+      const response = await fetch("/api/current-user-role");
       if (response.ok) {
-        const data = await response.json()
+        const data = await response.json();
         setUser({
           email: data.session?.email || "admin@cgm.com",
           name: data.session?.name || "Admin Usuario",
-          role: data.role
-        })
+          role: data.role,
+        });
       }
     } catch (error) {
       // Fallback data
       setUser({
         email: "admin@cgm.com",
         name: "Admin Usuario",
-        role: "Superusuario"
-      })
+        role: "Superusuario",
+      });
     }
-  }
+  };
 
   const getUserInitials = () => {
     if (user?.name) {
       // Solo la primera letra del nombre
-      return user.name.charAt(0).toUpperCase()
+      return user.name.charAt(0).toUpperCase();
     }
-    return 'A'
-  }
+    return "A";
+  };
 
   const toggleTheme = () => {
-    setTheme(theme === 'light' ? 'dark' : 'light')
-  }
+    setTheme(theme === "light" ? "dark" : "light");
+  };
 
   const handleLogout = async () => {
-    setIsLoggingOut(true)
+    setIsLoggingOut(true);
     try {
       toast({
         title: "Cerrando sesión...",
         description: "Hasta pronto. Esperamos verte de nuevo.",
         variant: "success",
-      })
-      
+      });
+
       // Small delay to show the toast before redirect
       setTimeout(async () => {
-        await logoutAction()
-      }, 1000)
+        await logoutAction();
+      }, 1000);
     } catch (error) {
       toast({
         title: "Error al cerrar sesión",
         description: "Ocurrió un problema. Intente nuevamente.",
         variant: "destructive",
-      })
-      setIsLoggingOut(false)
+      });
+      setIsLoggingOut(false);
     }
-  }
+  };
 
   if (!mounted) {
-    return (
-      <div className="h-10 w-10 bg-muted rounded-full animate-pulse" />
-    )
+    return <div className="h-10 w-10 bg-muted rounded-full animate-pulse" />;
   }
 
   return (
@@ -104,9 +102,9 @@ export function UserDropdown() {
           </AvatarFallback>
         </Avatar>
       </DropdownMenuTrigger>
-      
-      <DropdownMenuContent 
-        align="end" 
+
+      <DropdownMenuContent
+        align="end"
         side="bottom"
         className="w-60 bg-popover text-popover-foreground border border-border shadow-md rounded-md"
         sideOffset={8}
@@ -114,7 +112,7 @@ export function UserDropdown() {
         {/* User info header - without avatar */}
         <div className="p-3 border-b border-border">
           <div className="text-sm font-semibold text-foreground truncate">
-            {user?.email || 'admin@cgm.com'}
+            {user?.email || "admin@cgm.com"}
           </div>
           {user?.role && (
             <div className="text-xs text-muted-foreground mt-1">
@@ -125,11 +123,11 @@ export function UserDropdown() {
 
         {/* Menu items */}
         <div className="py-1">
-          <DropdownMenuItem 
-            onClick={toggleTheme} 
+          <DropdownMenuItem
+            onClick={toggleTheme}
             className="cursor-pointer px-3 py-2 text-sm hover:bg-muted focus:bg-muted transition-colors"
           >
-            {theme === 'light' ? (
+            {theme === "light" ? (
               <>
                 <Moon className="mr-3 h-4 w-4" />
                 Modo Oscuro
@@ -141,9 +139,9 @@ export function UserDropdown() {
               </>
             )}
           </DropdownMenuItem>
-          
+
           <DropdownMenuSeparator className="my-1 border-border" />
-          
+
           <DropdownMenuItem
             onClick={handleLogout}
             disabled={isLoggingOut}
@@ -155,5 +153,5 @@ export function UserDropdown() {
         </div>
       </DropdownMenuContent>
     </DropdownMenu>
-  )
+  );
 }
