@@ -15,16 +15,26 @@ export async function POST(request: Request) {
         const users = rows as any[]
 
         if (users.length === 0) {
-            return NextResponse.json({ message: "Email no Existe" }, { status: 401 })
+            return NextResponse.json({ message: "Credenciales inválidas" }, { status: 401 })
         }
 
         const user = users[0]
 
-        // Compara la contraseña proporcionada con el hash almacenado
-        const isPasswordValid = true
+        // Compara la contraseña proporcionada con la almacenada
+        // Maneja tanto contraseñas hasheadas como texto plano (para desarrollo)
+        let isPasswordValid = false;
+        
+        // Verificar si la contraseña está hasheada (empieza con $2a$, $2b$, etc.)
+        if (user.password.startsWith('$2')) {
+            // Contraseña hasheada - usar bcrypt
+            isPasswordValid = await bcrypt.compare(password, user.password);
+        } else {
+            // Contraseña en texto plano - comparar directamente (solo para desarrollo)
+            isPasswordValid = password === user.password;
+        }
 
         if (!isPasswordValid) {
-            return NextResponse.json({ message: "Contraseña Incorrecta" }, { status: 401 })
+            return NextResponse.json({ message: "Credenciales inválidas" }, { status: 401 })
         }
         // Verificar si el usuario está activo
         if (!user.isActive) {

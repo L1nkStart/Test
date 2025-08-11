@@ -10,8 +10,16 @@ interface InsuranceHolder {
   totalCases?: number;
 }
 
+interface Stats {
+  totalTitulares: number;
+  polizasActivas: number;
+  totalPacientes: number;
+  totalCasos: number;
+}
+
 interface StatsCardsProps {
   data: InsuranceHolder[];
+  stats?: Stats;
 }
 
 interface StatCardProps {
@@ -21,7 +29,7 @@ interface StatCardProps {
   iconClassName?: string;
 }
 
-function StatCard({
+const StatCard = React.memo(function StatCard({
   title,
   value,
   icon: Icon,
@@ -44,45 +52,57 @@ function StatCard({
       </CardContent>
     </Card>
   );
-}
+});
 
-export function StatsCards({ data }: StatsCardsProps) {
-  const stats = {
+export const StatsCards = React.memo(function StatsCards({ data, stats: providedStats }: StatsCardsProps) {
+  const calculatedStats = React.useMemo(() => ({
     totalTitulares: data.length,
     polizasActivas: data.filter((h) => h.policyStatus === "Activo").length,
     totalPacientes: data.reduce((sum, h) => sum + (h.totalPatients || 0), 0),
     totalCasos: data.reduce((sum, h) => sum + (h.totalCases || 0), 0),
-  };
+  }), [data]);
+
+  // Use provided stats if available, otherwise calculate from data
+  const stats = providedStats || calculatedStats;
+
+  const statsData = [
+    {
+      title: "Total Titulares",
+      value: stats.totalTitulares,
+      icon: Users,
+      iconClassName: "text-muted-foreground"
+    },
+    {
+      title: "Pólizas Activas", 
+      value: stats.polizasActivas,
+      icon: CheckCircle,
+      iconClassName: "text-green-600 dark:text-green-500"
+    },
+    {
+      title: "Total Pacientes",
+      value: stats.totalPacientes,
+      icon: UserGroup,
+      iconClassName: "text-muted-foreground"
+    },
+    {
+      title: "Total Casos",
+      value: stats.totalCasos,
+      icon: FileText,
+      iconClassName: "text-muted-foreground"
+    }
+  ];
 
   return (
     <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
-      <StatCard
-        title="Total Titulares"
-        value={stats.totalTitulares}
-        icon={Users}
-        iconClassName="text-muted-foreground"
-      />
-
-      <StatCard
-        title="Pólizas Activas"
-        value={stats.polizasActivas}
-        icon={CheckCircle}
-        iconClassName="text-green-600 dark:text-green-500"
-      />
-
-      <StatCard
-        title="Total Pacientes"
-        value={stats.totalPacientes}
-        icon={UserGroup}
-        iconClassName="text-muted-foreground"
-      />
-
-      <StatCard
-        title="Total Casos"
-        value={stats.totalCasos}
-        icon={FileText}
-        iconClassName="text-muted-foreground"
-      />
+      {statsData.map((stat) => (
+        <StatCard
+          key={stat.title}
+          title={stat.title}
+          value={stat.value}
+          icon={stat.icon}
+          iconClassName={stat.iconClassName}
+        />
+      ))}
     </div>
   );
-}
+});

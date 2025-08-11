@@ -24,7 +24,7 @@ interface TitularesTableRowProps {
   titular: InsuranceHolder;
 }
 
-export function TitularesTableRow({ titular }: TitularesTableRowProps) {
+export const TitularesTableRow = React.memo(function TitularesTableRow({ titular }: TitularesTableRowProps) {
   const formattedCI = titular.ci || "";
 
   const formattedCoverageAmount =
@@ -97,4 +97,4 @@ export function TitularesTableRow({ titular }: TitularesTableRowProps) {
       </TableCell>
     </TableRow>
   );
-}
+});

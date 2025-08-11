@@ -63,7 +63,7 @@ export async function DashboardHeader() {
   const filteredNavItems = navItems.filter((item) => hasRequiredRole(userRole, item.roles))
 
   return (
-    <header className="flex h-14 sm:h-16 lg:h-[60px] items-center gap-2 sm:gap-4 border-b bg-gray-100/40 px-3 sm:px-4 lg:px-6 dark:bg-gray-800/40">
+    <header className="flex h-16 sm:h-16 lg:h-[60px] items-center gap-2 sm:gap-4 border-b bg-gray-100/40 px-3 sm:px-4 lg:px-6 dark:bg-gray-800/40">
       <Sheet>
         <SheetTrigger asChild>
           <Button className="lg:hidden bg-transparent" size="icon" variant="outline">
@@ -71,9 +71,9 @@ export async function DashboardHeader() {
             <span className="sr-only">Toggle navigation menu</span>
           </Button>
         </SheetTrigger>
-        <SheetContent side="left" className="w-[280px] sm:w-[300px]">
-          <Link className="flex items-center gap-2 font-semibold text-sm sm:text-base" href="#">
-            <Package2Icon className="h-5 w-5 sm:h-6 sm:w-6" />
+        <SheetContent side="left" className="w-[280px] sm:w-[300px] pt-6">
+          <Link className="flex items-center gap-2 font-semibold text-sm sm:text-base py-3" href="#">
+            <Package2Icon className="h-5 w-5 sm:h-6 sm:w-6 flex-shrink-0" />
             <span className="truncate">TEST System</span>
           </Link>
           <div className="grid gap-2 py-4 sm:py-6">
@@ -104,14 +104,12 @@ export async function DashboardHeader() {
       </div>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button className="overflow-hidden rounded-full bg-transparent h-8 w-8 sm:h-10 sm:w-10" size="icon" variant="outline">
-            <Avatar className="h-7 w-7 sm:h-9 sm:w-9">
-              <AvatarImage src="/placeholder-user.jpg" alt="User Avatar" />
-              <AvatarFallback className="text-xs sm:text-sm">
-                {session?.email ? session.email.charAt(0).toUpperCase() : "U"}
-              </AvatarFallback>
-            </Avatar>
-          </Button>
+          <Avatar className="h-6 w-6 sm:h-9 sm:w-9 cursor-pointer hover:opacity-80 transition-opacity focus:outline-none focus-visible:outline-none">
+            <AvatarImage src="/placeholder-user.jpg" alt="User Avatar" />
+            <AvatarFallback className="text-xs sm:text-sm">
+              {session?.email ? session.email.charAt(0).toUpperCase() : "U"}
+            </AvatarFallback>
+          </Avatar>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-48 sm:w-56">
           <DropdownMenuLabel className="truncate text-sm">

@@ -150,7 +150,7 @@ export function InsuranceHolderForm({ isOpen, onClose, onSave, initialData = nul
             } catch (error) {
                 console.error("Error loading clients:", error)
                 toast({
-                    title: "Error",
+                    title: "Error de carga",
                     description: "No se pudieron cargar los clientes/aseguradoras.",
                     variant: "destructive",
                 })
@@ -237,7 +237,7 @@ export function InsuranceHolderForm({ isOpen, onClose, onSave, initialData = nul
 
         if (!ci || !name || !phone || !clientId) {
             toast({
-                title: "Error",
+                title: "Campos requeridos",
                 description: "Por favor, complete todos los campos requeridos (CI, nombre, teléfono, aseguradora).",
                 variant: "destructive",
             })

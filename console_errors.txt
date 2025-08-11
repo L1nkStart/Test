@@ -1,0 +1,120 @@
+󰣭  devzelix  ~/Documents/prueba-tecnica-linkstart [feat-final]  rm -rf .next && npm run dev --host
+npm warn Unknown cli config "--host". This will stop working in the next major version of npm.
+
+> test-project@0.1.0 dev
+> next dev
+
+   ▲ Next.js 15.2.4
+   - Local:        http://localhost:3000
+   - Network:      http://192.168.100.212:3000
+   - Environments: .env
+
+ ✓ Starting...
+ ✓ Ready in 2.1s
+ ✓ Compiled /middleware in 482ms (107 modules)
+=== GETTING SESSION COOKIE ===
+Cookie name: cgm_session
+Cookie found: true
+Cookie value: {"id":"a1b2c3d4-e5f6-7890-1234-567890abcdef","email":"admin@example.com"}
+Parsed payload: {
+  id: 'a1b2c3d4-e5f6-7890-1234-567890abcdef',
+  email: 'admin@example.com'
+}
+=== MIDDLEWARE DEBUG ===
+Ruta solicitada: /
+Sesión encontrada: true
+ID de usuario: No encontrado
+Acceso permitido - sesión válida
+ ○ Compiling / ...
+ ✓ Compiled / in 5.8s (1011 modules)
+ GET / 307 in 6026ms
+=== GETTING SESSION COOKIE ===
+Cookie name: cgm_session
+Cookie found: true
+Cookie value: {"id":"a1b2c3d4-e5f6-7890-1234-567890abcdef","email":"admin@example.com"}
+Parsed payload: {
+  id: 'a1b2c3d4-e5f6-7890-1234-567890abcdef',
+  email: 'admin@example.com'
+}
+=== MIDDLEWARE DEBUG ===
+Ruta solicitada: /login
+Sesión encontrada: true
+ID de usuario: No encontrado
+Ruta pública - acceso permitido
+ ○ Compiling /login ...
+ ✓ Compiled /login in 1843ms (1011 modules)
+ GET /login 200 in 1964ms
+ ○ Compiling /api/auth/login ...
+ ✓ Compiled /api/auth/login in 545ms (1156 modules)
+=== SETTING SESSION COOKIE ===
+User ID: a1b2c3d4-e5f6-7890-1234-567890abcdef
+Email: admin@example.com
+Environment: development
+Session payload: {
+  id: 'a1b2c3d4-e5f6-7890-1234-567890abcdef',
+  email: 'admin@example.com'
+}
+Cookie set successfully
+ POST /api/auth/login 200 in 719ms
+=== GETTING SESSION COOKIE ===
+Cookie name: cgm_session
+Cookie found: true
+Cookie value: {"id":"a1b2c3d4-e5f6-7890-1234-567890abcdef","email":"admin@example.com"}
+Parsed payload: {
+  id: 'a1b2c3d4-e5f6-7890-1234-567890abcdef',
+  email: 'admin@example.com'
+}
+=== MIDDLEWARE DEBUG ===
+Ruta solicitada: /login
+Sesión encontrada: true
+ID de usuario: No encontrado
+Ruta pública - acceso permitido
+Toast logged successfully: {
+  title: 'Inicio de sesión exitoso',
+  description: 'Redirigiendo al dashboard...',
+  path: '/login'
+}
+ POST /login 200 in 154ms
+=== GETTING SESSION COOKIE ===
+Cookie name: cgm_session
+Cookie found: true
+Cookie value: {"id":"a1b2c3d4-e5f6-7890-1234-567890abcdef","email":"admin@example.com"}
+Parsed payload: {
+  id: 'a1b2c3d4-e5f6-7890-1234-567890abcdef',
+  email: 'admin@example.com'
+}
+=== MIDDLEWARE DEBUG ===
+Ruta solicitada: /dashboard/titulares
+Sesión encontrada: true
+ID de usuario: No encontrado
+Acceso permitido - sesión válida
+ ○ Compiling /dashboard/titulares ...
+ ✓ Compiled /dashboard/titulares in 1084ms (1393 modules)
+=== GETTING SESSION COOKIE ===
+Cookie name: cgm_session
+Cookie found: true
+Cookie value: {"id":"a1b2c3d4-e5f6-7890-1234-567890abcdef","email":"admin@example.com"}
+Parsed payload: {
+  id: 'a1b2c3d4-e5f6-7890-1234-567890abcdef',
+  email: 'admin@example.com'
+}
+=== PROTECTED LAYOUT DEBUG ===
+Sesión en layout protegido: true
+Usuario ID: No encontrado
+Email: admin@example.com
+Sin sesión válida - redirigiendo a login
+ GET /dashboard/titulares 307 in 1295ms
+=== GETTING SESSION COOKIE ===
+Cookie name: cgm_session
+Cookie found: true
+Cookie value: {"id":"a1b2c3d4-e5f6-7890-1234-567890abcdef","email":"admin@example.com"}
+Parsed payload: {
+  id: 'a1b2c3d4-e5f6-7890-1234-567890abcdef',
+  email: 'admin@example.com'
+}
+=== MIDDLEWARE DEBUG ===
+Ruta solicitada: /login
+Sesión encontrada: true
+ID de usuario: No encontrado
+Ruta pública - acceso permitido
+ GET /login 200 in 49ms

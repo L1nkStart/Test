@@ -1,0 +1,11 @@
+* Actualizar estadisticas tras busqueda
+
+* Utilizar next.js para no traer todos los datos y hacer eficiente el fetch de la busqueda
+
+* Mejorar autenticacion y logueo
+
+* Mejorar detalles visuales como el padding del header en movil, login en movil y el skeleton para desktop donde se ve todo aglomerado
+
+* limpiar codigo, generar comentarios del codigo y documentar cambios
+
+* generar el pull request

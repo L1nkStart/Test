@@ -129,13 +129,14 @@ export function UserForm({ user, onSuccess, onCancel }: UserFormProps) {
       }
 
       toast({
-        title: "Éxito",
+        title: "¡Operación exitosa!",
         description: `Usuario ${user ? "actualizado" : "creado"} correctamente.`,
+        variant: "success",
       })
       onSuccess()
     } catch (error: any) {
       toast({
-        title: "Error",
+        title: "Error al procesar",
         description: error.message || "No se pudo procesar la solicitud.",
         variant: "destructive",
       })

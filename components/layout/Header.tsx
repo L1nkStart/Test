@@ -49,7 +49,7 @@ export function Header() {
           {/* Botón hamburguesa solo cuando sidebar está cerrado */}
           <div
             className={cn(
-              "transition-all duration-300 ease-out mr-2 sm:mr-3 md:mr-4 lg:mr-6",
+              "transition-all duration-300 ease-out mr-3 sm:mr-4 md:mr-5 lg:mr-7",
               !sidebarOpen
                 ? "opacity-100 scale-100 w-8 sm:w-9"
                 : "opacity-0 scale-95 w-0 overflow-hidden"
@@ -67,7 +67,7 @@ export function Header() {
           </div>
 
           {/* Escudo + CGM/Sistema (agrupados) */}
-          <div className="flex items-center gap-1 sm:gap-2 min-w-0">
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
             {/* Escudo */}
             <div className="relative flex-shrink-0">
               <div className="w-6 h-7 sm:w-7 sm:h-8 md:w-8 md:h-9 lg:w-8 lg:h-10 relative">

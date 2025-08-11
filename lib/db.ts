@@ -9,14 +9,22 @@ if (!databaseUrl) {
     throw new Error("DATABASE_URL no está definida en las variables de entorno.");
 }
 
+// Parse the DATABASE_URL to extract connection details
+const urlParts = new URL(databaseUrl);
+
 // Crea un pool de conexiones para MySQL.
-// mysql2/promise puede parsear directamente una cadena de conexión URL válida.
 const pool = mysql.createPool({
-    uri: databaseUrl,
+    host: urlParts.hostname,
+    port: parseInt(urlParts.port) || 3306,
+    user: urlParts.username,
+    password: urlParts.password,
+    database: urlParts.pathname.slice(1), // Remove leading slash
     charset: 'utf8mb4',
     connectionLimit: 10,
-    acquireTimeout: 60000,
-    timeout: 60000,
+    waitForConnections: true,
+    queueLimit: 0,
+    // Remove deprecated options that cause warnings in mysql2
+    // acquireTimeout and timeout are not valid options for mysql2
 });
 
 export default pool;

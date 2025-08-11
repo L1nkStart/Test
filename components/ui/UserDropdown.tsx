@@ -9,10 +9,10 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { Button } from "@/components/ui/button"
 import { Moon, Sun, LogOut, ChevronDown } from "lucide-react"
 import { useTheme } from "next-themes"
 import { logoutAction } from "@/app/actions"
+import { useToast } from "@/hooks/use-toast"
 
 interface UserData {
   email?: string
@@ -25,6 +25,7 @@ export function UserDropdown() {
   const [user, setUser] = useState<UserData | null>(null)
   const [mounted, setMounted] = useState(false)
   const [isLoggingOut, setIsLoggingOut] = useState(false)
+  const { toast } = useToast()
 
   useEffect(() => {
     setMounted(true)
@@ -68,9 +69,23 @@ export function UserDropdown() {
   const handleLogout = async () => {
     setIsLoggingOut(true)
     try {
-      await logoutAction()
+      toast({
+        title: "Cerrando sesión...",
+        description: "Hasta pronto. Esperamos verte de nuevo.",
+        variant: "success",
+      })
+      
+      // Small delay to show the toast before redirect
+      setTimeout(async () => {
+        await logoutAction()
+      }, 1000)
     } catch (error) {
       console.error("Error during logout:", error)
+      toast({
+        title: "Error al cerrar sesión",
+        description: "Ocurrió un problema. Intente nuevamente.",
+        variant: "destructive",
+      })
       setIsLoggingOut(false)
     }
   }
@@ -84,18 +99,12 @@ export function UserDropdown() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button 
-          variant="ghost" 
-          size="sm"
-          className="p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
-        >
-          <Avatar className="h-10 w-10">
-            <AvatarImage src="/placeholder-avatar.png" alt="Avatar" />
-            <AvatarFallback className="bg-primary text-primary-foreground font-semibold text-base">
-              {getUserInitials()}
-            </AvatarFallback>
-          </Avatar>
-        </Button>
+        <Avatar className="h-10 w-10 cursor-pointer hover:opacity-80 transition-opacity focus:outline-none focus-visible:outline-none">
+          <AvatarImage src="/placeholder-avatar.png" alt="Avatar" />
+          <AvatarFallback className="bg-primary text-primary-foreground font-semibold text-base">
+            {getUserInitials()}
+          </AvatarFallback>
+        </Avatar>
       </DropdownMenuTrigger>
       
       <DropdownMenuContent 
@@ -104,24 +113,16 @@ export function UserDropdown() {
         className="w-60 bg-popover text-popover-foreground border border-border shadow-md rounded-md"
         sideOffset={8}
       >
-        {/* User info header - always visible */}
-        <div className="flex items-center gap-3 p-3 border-b border-border">
-          <Avatar className="h-10 w-10">
-            <AvatarImage src="/placeholder-avatar.png" alt="Avatar" />
-            <AvatarFallback className="bg-primary text-primary-foreground font-semibold">
-              {getUserInitials()}
-            </AvatarFallback>
-          </Avatar>
-          <div className="flex-1 min-w-0">
-            <div className="text-sm font-semibold text-foreground truncate">
-              {user?.email || 'admin@cgm.com'}
-            </div>
-            {user?.role && (
-              <div className="text-xs text-muted-foreground mt-1">
-                {user.role}
-              </div>
-            )}
+        {/* User info header - without avatar */}
+        <div className="p-3 border-b border-border">
+          <div className="text-sm font-semibold text-foreground truncate">
+            {user?.email || 'admin@cgm.com'}
           </div>
+          {user?.role && (
+            <div className="text-xs text-muted-foreground mt-1">
+              {user.role}
+            </div>
+          )}
         </div>
 
         {/* Menu items */}

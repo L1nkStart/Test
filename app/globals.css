@@ -96,8 +96,24 @@
     --icon-default: 220 10% 72%;
   }
 
+  /* Transiciones suaves para el cambio de tema */
+  input,
+  button,
+  [role="button"],
+  .bg-card,
+  .bg-background,
+  .border-border,
+  .text-foreground,
+  .text-muted-foreground,
+  .text-card-foreground {
+    transition: background-color 200ms ease-in-out, 
+                border-color 200ms ease-in-out, 
+                color 200ms ease-in-out !important;
+  }
+
   body {
     @apply bg-background text-foreground;
+    transition: background-color 200ms ease-in-out, color 200ms ease-in-out;
   }
   html {
     overflow-x: hidden;

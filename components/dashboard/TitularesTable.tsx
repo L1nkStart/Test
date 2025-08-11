@@ -68,7 +68,10 @@ function TitularesTableContent({ data }: TitularesTableProps) {
         <div className="block sm:hidden">
           <div className="space-y-3 p-4">
             {data.map((titular) => (
-              <div key={titular.id} className="bg-muted/50 rounded-lg p-4 space-y-3">
+              <div 
+                key={titular.id} 
+                className="bg-muted/50 rounded-lg p-4 space-y-3"
+              >
                 <div className="flex items-start justify-between">
                   <div className="min-w-0 flex-1">
                     <h3 className="font-medium text-foreground truncate">{titular.name}</h3>
