@@ -66,7 +66,13 @@ export function DistributionCharts({ distributions }: DistributionChartsProps) {
                             <ResponsiveContainer width="100%" height={300}>
                                 <BarChart accessibilityLayer data={currentChartData} margin={{ top: 20, right: 80, left: 80, bottom: 40 }}>
                                     <CartesianGrid vertical={false} />
-                                    <XAxis dataKey="name" stroke="var(--foreground)" fontSize={12} tickLine={false} axisLine={false} />
+                                    <XAxis
+                                        dataKey="name"
+                                        tickLine={false}
+                                        axisLine={false}
+                                        stroke="hsl(var(--muted-foreground))"
+                                        tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 14 }}
+                                    />
                                     <ChartTooltip cursor={false} content={<ChartTooltipContent indicator="dot" />} />
                                     <Bar dataKey="value" fill={"var(--chart-2)"} radius={8} />
                                 </BarChart>

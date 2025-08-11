@@ -1,9 +1,10 @@
 "use client"
 
+import * as React from "react"
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { ChevronRight } from 'lucide-react'
+import { ChevronRight } from "lucide-react"
 
 import {
     SidebarContent,
@@ -24,6 +25,7 @@ import {
 } from "@/components/ui/collapsible"
 
 import { NavSection } from "@/components/interfaces/nav-interface"
+import { ModeToggle } from "@/components/mode-toggle"
 
 export function AppSidebarContent({
     items,
@@ -36,11 +38,9 @@ export function AppSidebarContent({
 
     const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({})
 
-    // Inicializar el estado expandido basado en la sección activa
     useEffect(() => {
         const initialExpanded: Record<string, boolean> = {}
         items.forEach((section) => {
-            // Expandir si es la sección activa o si alguno de sus items está activo
             const hasActiveItem = section.items.some(item =>
                 pathname === item.href || pathname.startsWith(item.href)
             )
@@ -56,25 +56,21 @@ export function AppSidebarContent({
         }))
     }
 
-    // Función para manejar el click en el trigger cuando está colapsado
     const handleCollapsedClick = (sectionTitle: string) => {
         if (isCollapsed) {
-            // Expandir el sidebar
             setOpen(true)
-            // Expandir la sección clickeada
             setExpandedSections((prev) => ({
                 ...prev,
                 [sectionTitle]: true,
             }))
         } else {
-            // Comportamiento normal cuando no está colapsado
             toggleSection(sectionTitle)
         }
     }
 
     return (
-        <SidebarContent>
-            <SidebarGroup>
+        <SidebarContent className="flex flex-col h-full">
+            <SidebarGroup className="flex-grow">
                 <SidebarMenu>
                     {items.map((section) => {
                         const isExpanded = expandedSections[section.title] || false
@@ -128,6 +124,14 @@ export function AppSidebarContent({
                             </Collapsible>
                         )
                     })}
+                </SidebarMenu>
+            </SidebarGroup>
+
+            <SidebarGroup>
+                <SidebarMenu>
+                    <SidebarMenuItem>
+                        <ModeToggle />
+                    </SidebarMenuItem>
                 </SidebarMenu>
             </SidebarGroup>
         </SidebarContent>

@@ -123,6 +123,9 @@ html[data-radix-dialog-open] {
         
     /* Radio global */
     --radius: 0.5rem;
+
+    --muted: hsl(240 40% 96%);
+    --muted-foreground: hsl(0 0% 13%);
     
     /* Sidebar */
     --sidebar-background: hsl(240 40% 100%);
@@ -140,16 +143,16 @@ html[data-radix-dialog-open] {
   */
   .dark {
     /* Colores base */
-    --text: hsl(0 0% 90%);
-    --background: hsl(240 60% 10%);
-    --primary: hsl(14 100% 67%);
-    --secondary: hsl(231 48% 70%);
-    --accent: hsl(232 46% 60%);
-    --accent-foreground: hsl(0 0% 90%);
-    --card: hsl(240 30% 15%);
-    --card-foreground: hsl(0 0% 90%);
-    --popover: hsl(240 30% 15%);
-    --popover-foreground: hsl(0 0% 90%);
+    --text: hsl(220 10% 95%);
+    --background: hsl(220 15% 8%);
+    --primary: hsl(14 80% 58%);
+    --secondary: hsl(220 70% 65%);
+    --accent: hsl(220 15% 20%);
+    --accent-foreground: hsl(220 10% 95%);
+    --card: hsl(220 15% 12%);
+    --card-foreground: hsl(220 10% 95%); 
+    --popover: hsl(220 15% 12%);
+    --popover-foreground: hsl(220 10% 95%);
     
     /* Colores relacionados */
     --primary-foreground: hsl(0 0% 98%);
@@ -158,8 +161,8 @@ html[data-radix-dialog-open] {
     --destructive-foreground: hsl(0 0% 98%);
     
     /* Bordes y anillos */
-    --border: hsl(240 30% 30%);
-    --input: hsl(240 30% 30%);
+    --border: hsl(240 20% 30%);
+    --input: hsl(240 20% 30%);
     --ring: hsl(231 48% 70%);
     
     /* Gráficos */
@@ -169,9 +172,12 @@ html[data-radix-dialog-open] {
         
     /* Radio global */
     --radius: 0.5rem;
+
+    --muted: hsl(240 20% 10%);
+    --muted-foreground: hsl(0 0% 90%);
     
     /* Sidebar */
-    --sidebar-background: hsl(240 60% 10%);
+    --sidebar-background: hsl(240 20% 6%);
     --sidebar-foreground: hsl(0 0% 90%);
     --sidebar-primary: var(--primary);
     --sidebar-primary-foreground: var(--primary-foreground);
