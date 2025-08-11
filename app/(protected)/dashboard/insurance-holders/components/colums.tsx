@@ -1,7 +1,7 @@
 "use client"
 
-import { type ColumnDef } from "@tanstack/react-table"
-import { ArrowUpDown, MoreHorizontal } from "lucide-react"
+import { type Column, type ColumnDef } from "@tanstack/react-table"
+import { ArrowDown, ArrowUp, ArrowUpDown, MoreHorizontal } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -13,24 +13,100 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-
+import { cn } from "@/lib/utils" // Asegúrate de tener esta utilidad de clsx/tailwind-merge
 import { InsuranceHolder } from "@/interfaces/insurance-holder"
 import { getStatusColor, formatCurrency } from "@/lib/utils"
+import { useToast } from "@/hooks/use-toast"
+import { useForm } from "./form-context"
+import { useState, useTransition } from "react"
+import { deleteUser } from "@/app/actions"
+
+
+import { Trash2, Loader2 } from 'lucide-react';
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 
 /**
- * Componente para el menú desplegable de acciones por fila.
- * Mantiene la definición de las columnas más limpia.
+ * Componente reutilizable para los encabezados de columna que permite la ordenación.
+ * Muestra un ícono diferente según el estado de ordenación.
  */
-const DataTableRowActions = ({ row }: { row: any }) => {
-    const holder = row.original as InsuranceHolder
+interface DataTableColumnHeaderProps<TData, TValue> extends React.HTMLAttributes<HTMLDivElement> {
+    column: Column<TData, TValue>
+    title: string
+}
 
-    // Aquí puedes añadir la lógica para navegar, abrir modales, etc.
-    const handleViewDetails = () => console.log("Ver detalles de:", holder.id)
-    const handleEdit = () => console.log("Editar:", holder.id)
-    const handleDelete = () => console.log("Eliminar:", holder.id)
+
+
+function DataTableColumnHeader<TData, TValue>({ column, title, className }: DataTableColumnHeaderProps<TData, TValue>) {
+    const SortIcon = () => {
+        const sorted = column.getIsSorted()
+        if (sorted === "desc") {
+            return <ArrowDown className="ml-2 h-4 w-4" />
+        }
+        if (sorted === "asc") {
+            return <ArrowUp className="ml-2 h-4 w-4" />
+        }
+        return <ArrowUpDown className="ml-2 h-4 w-4" />
+    }
 
     return (
-        <div className="text-right">
+        <div className={cn("flex items-center space-x-2 ml-2", className)}>
+            <Button
+                variant="ghost"
+                onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                className="-ml-4 h-8 p-2 data-[state=open]:bg-accent hover:bg-accent/50 font-bold"
+            >
+                <span>{title}</span>
+                <SortIcon />
+            </Button>
+        </div>
+    )
+}
+
+const DataTableRowActions = ({ row }: { row: any }) => {
+
+    const { toast } = useToast();
+    // Hook del contexto para abrir el modal de edición
+    const { openEditForm } = useForm();
+
+    // Estado para controlar la apertura del diálogo de alerta
+    const [isAlertOpen, setIsAlertOpen] = useState(false);
+
+    // Hook useTransition para manejar el estado de carga de la Server Action
+    const [isPending, startTransition] = useTransition();
+
+    const handleDelete = () => {
+        startTransition(async () => {
+            const result = await deleteUser(holder.id);
+
+            if (result.success) {
+                toast({
+                    title: 'Éxito',
+                    description: 'Titular de seguro eliminado correctamente.',
+                });
+                setIsAlertOpen(false); // Cierra el diálogo al tener éxito
+            } else {
+                toast({
+                    title: 'Error',
+                    description: result.message || 'No se pudo eliminar el titular.',
+                    variant: 'destructive',
+                });
+            }
+        });
+    };
+
+    const holder = row.original as InsuranceHolder
+    return (
+        <>
             <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                     <Button variant="ghost" className="h-8 w-8 p-0">
@@ -40,45 +116,48 @@ const DataTableRowActions = ({ row }: { row: any }) => {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
                     <DropdownMenuLabel>Acciones</DropdownMenuLabel>
-                    <DropdownMenuItem onClick={() => navigator.clipboard.writeText(holder.id)}>
-                        Copiar ID del Titular
-                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => navigator.clipboard.writeText(holder.id)}>Copiar ID del Titular</DropdownMenuItem>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={handleViewDetails}>
-                        Ver detalles
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={handleEdit}>
-                        Editar titular
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={handleDelete} className="text-red-600 focus:text-red-600">
-                        Eliminar titular
-                    </DropdownMenuItem>
+                    <DropdownMenuItem>Ver detalles</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => openEditForm(holder)}>Editar titular</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setIsAlertOpen(true)} className=" text-destructive focus:text-destructive">Eliminar titular</DropdownMenuItem>
                 </DropdownMenuContent>
             </DropdownMenu>
-        </div>
+
+
+            {/* Diálogo de Alerta para Confirmar Borrado */}
+            <AlertDialog open={isAlertOpen} onOpenChange={setIsAlertOpen}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>¿Estás absolutamente seguro?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            Esta acción no se puede deshacer. Esto eliminará permanentemente al titular de seguro
+                            <span className="font-semibold"> {holder.name}</span> y todos sus datos asociados.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel disabled={isPending}>Cancelar</AlertDialogCancel>
+                        <AlertDialogAction onClick={handleDelete} disabled={isPending}>
+                            {isPending ? (
+                                <>
+                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                    Eliminando...
+                                </>
+                            ) : (
+                                'Sí, eliminar'
+                            )}
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
+        </>
     )
 }
 
-/**
- * Función que genera y exporta las definiciones de las columnas para la tabla de titulares.
- * @param canManageHolders - Booleano para mostrar condicionalmente la columna de acciones.
- * @returns Un array de ColumnDef<InsuranceHolder>.
- */
 export const getColumns = (canManageHolders: boolean): ColumnDef<InsuranceHolder>[] => [
     {
         accessorKey: "name",
-        header: ({ column }) => {
-            return (
-                <Button
-                    variant="ghost"
-                    onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-                    className="h-8 p-0 hover:bg-transparent"
-                >
-                    Titular
-                    <ArrowUpDown className="ml-2 h-4 w-4" />
-                </Button>
-            )
-        },
+        header: ({ column }) => <DataTableColumnHeader column={column} title="Titular" />,
         cell: ({ row }) => {
             const holder = row.original
             return (
@@ -117,34 +196,12 @@ export const getColumns = (canManageHolders: boolean): ColumnDef<InsuranceHolder
     },
     {
         accessorKey: "insuranceCompany",
-        header: ({ column }) => {
-            return (
-                <Button
-                    variant="ghost"
-                    onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-                    className="h-8 p-0 hover:bg-transparent"
-                >
-                    Compañía
-                    <ArrowUpDown className="ml-2 h-4 w-4" />
-                </Button>
-            )
-        },
+        header: ({ column }) => <DataTableColumnHeader column={column} title="Compañía" />,
         cell: ({ row }) => row.getValue("insuranceCompany") || "N/A",
     },
     {
         accessorKey: "policyStatus",
-        header: ({ column }) => {
-            return (
-                <Button
-                    variant="ghost"
-                    onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-                    className="h-8 p-0 hover:bg-transparent"
-                >
-                    Estado
-                    <ArrowUpDown className="ml-2 h-4 w-4" />
-                </Button>
-            )
-        },
+        header: ({ column }) => <DataTableColumnHeader column={column} title="Estado" />,
         cell: ({ row }) => {
             const status = row.getValue("policyStatus") as string
             return (
@@ -167,26 +224,6 @@ export const getColumns = (canManageHolders: boolean): ColumnDef<InsuranceHolder
             )
         },
     },
-    {
-        accessorKey: "totalCases",
-        header: ({ column }) => {
-            return (
-                <Button
-                    variant="ghost"
-                    onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-                    className="h-8 p-0 hover:bg-transparent"
-                >
-                    Casos
-                    <ArrowUpDown className="ml-2 h-4 w-4" />
-                </Button>
-            )
-        },
-        cell: ({ row }) => {
-            const count = row.getValue("totalCases") as number
-            return <Badge variant="secondary">{count}</Badge>
-        },
-    },
-    // Columna de acciones que se muestra condicionalmente
     ...(canManageHolders
         ? [
             {

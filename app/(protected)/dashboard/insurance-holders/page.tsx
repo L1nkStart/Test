@@ -28,18 +28,7 @@ export default async function InsuranceHoldersPage(props: {
     return (
         <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-6">
             <FormProvider>
-                <div className="flex items-center justify-between">
-                    <div>
-                        <h1 className="font-semibold text-lg md:text-2xl">Titulares de Seguro</h1>
-                        <p className="text-muted-foreground">Gestión de titulares de pólizas de seguro</p>
-                    </div>
-                </div>
-
-                {/* <HoldersToolbar /> */}
-
-                <Suspense fallback={<div>Cargando tabla...</div>}>
-                    <InsuranceHoldersTable searchParams={searchParams} />
-                </Suspense>
+                <InsuranceHoldersTable searchParams={searchParams} />
             </FormProvider>
         </main>
     );

@@ -35,12 +35,14 @@ export async function InsuranceHoldersTable({
     return (
         <Card>
             <CardHeader>
+                <h1 className="font-semibold text-lg md:text-2xl">Titulares de Seguro</h1>
+                <p className="text-muted-foreground">Gestión de titulares de pólizas de seguro</p>
             </CardHeader>
             <CardContent>
                 <HoldersClientTable
                     data={holders}
                     canManageHolders={canManageHolders}
-                    currentPage={searchParams.currentPage ?? 1}
+                    currentPage={searchParams.currentPage === undefined ? 1 : Number(searchParams.currentPage)}
                     pageCount={Math.ceil(holdersData.total / recordsPerPage)}
                 />
             </CardContent>

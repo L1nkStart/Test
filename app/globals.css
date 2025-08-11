@@ -112,9 +112,9 @@ html[data-radix-dialog-open] {
     --destructive-foreground: hsl(0 0% 98%);
     
     /* Bordes y anillos */
-    --border: hsl(0 0% 90%);
-    --input: hsl(0 0% 90%);
-    --ring: hsl(231 48% 40%);
+    --border: hsl(240 40% 90%);
+    --input: hsl(240 40% 90%);
+    --ring: hsl(220 60% 48%);
 
     /* Gráficos */
     --chart-1: var(--primary);

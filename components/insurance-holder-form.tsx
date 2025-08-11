@@ -280,7 +280,9 @@ export function InsuranceHolderForm({ isOpen, onClose, onSave, initialData = nul
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
-            <DialogContent className="sm:max-w-[900px] max-h-[90vh] overflow-y-auto">
+            {/* Overlay negro translúcido */}
+            <div className="fixed inset-0 bg-black/30 0 z-[999]" />
+            <DialogContent className="sm:max-w-[900px] max-h-[90vh] overflow-y-auto z-[1000]">
                 <DialogHeader>
                     <DialogTitle>{initialData ? "Editar Titular de Seguro" : "Crear Nuevo Titular de Seguro"}</DialogTitle>
                 </DialogHeader>
@@ -543,7 +545,7 @@ export function InsuranceHolderForm({ isOpen, onClose, onSave, initialData = nul
                         <Button type="button" variant="outline" onClick={onClose}>
                             Cancelar
                         </Button>
-                        <Button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white">
+                        <Button type="submit" className="bg-primary hover:bg-primary/50 text-white">
                             {initialData ? "Guardar Cambios" : "Crear Titular"}
                         </Button>
                     </DialogFooter>

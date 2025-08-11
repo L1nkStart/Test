@@ -73,7 +73,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-100 dark:bg-gray-950">
+    <div className="flex min-h-screen items-center justify-center bg-background dark:bg-background">
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1 text-center">
           <CardTitle className="text-2xl font-bold">Iniciar Sesión!</CardTitle>

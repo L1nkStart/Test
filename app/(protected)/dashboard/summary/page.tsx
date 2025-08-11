@@ -20,23 +20,24 @@ export default async function DashboardSummary() {
 
     return (
         // Grid de 2 filas y con altura que llene la pantalla
-        <div className="grid grid-rows-[auto_1fr] gap-4 h-full">
-            {/* Sección de métricas (Fila 1 - Altura automática) */}
+        <div className="flex flex-col h-screen gap-6">
+            {/* Sección de métricas */}
             <MetricSelectorCard
                 generalMetrics={stats.generalMetrics}
                 financialMetrics={stats.financialMetrics}
                 actionableInsights={stats.actionableInsights}
             />
 
-            {/* Sección de Demografía y Distribución (Fila 2 - Ocupa el resto del espacio) */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-                <div className="lg:col-span-2">
+            {/* Sección de Demografía y Distribución */}
+            <div className="flex gap-6 flex-1 min-h-0">
+                <div className="flex-1 min-h-0 flex flex-col">
                     <DistributionCharts distributions={stats.distributions} />
                 </div>
-                <div className="lg:col-span-1">
+                <div className="w-1/3 min-h-0 flex flex-col">
                     <DemographicsSection demographics={stats.demographics} />
                 </div>
             </div>
+
         </div>
     )
 }

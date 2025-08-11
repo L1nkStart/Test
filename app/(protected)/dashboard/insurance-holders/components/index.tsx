@@ -27,6 +27,7 @@ interface InsuranceHoldersTableProps {
 }
 
 export function HoldersClientTable({ data, canManageHolders, pageCount, currentPage }: InsuranceHoldersTableProps) {
+    console.log({ pageCount, currentPage })
     const router = useRouter();
     const pathname = usePathname();
     const searchParams = useSearchParams();

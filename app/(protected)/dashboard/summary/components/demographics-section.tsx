@@ -80,7 +80,6 @@ export function DemographicsSection({ demographics }: DemographicsSectionProps) 
                                     innerRadius={"40%"}
                                     outerRadius={"80%"}
                                     dataKey="value"
-                                    label={({ name, percent }) => `${(percent * 100).toFixed(0)}%`}
                                 >
                                     {genderData.map((entry) => (
                                         <Cell

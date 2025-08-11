@@ -10,7 +10,7 @@ export function InsuranceHolderCreateButton() {
     return (
         <Button
             onClick={openCreateForm}
-            className="bg-primary hover:bg-primary/80 text-white"
+            className="bg-secondary hover:bg-secondary/80 text-white"
         >
             <Plus className="h-4 w-4 mr-2" />
             Crear Titular
