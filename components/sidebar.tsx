@@ -111,8 +111,6 @@ export function AppSidebar({
     }))
     .filter((section) => section.items.length > 0) // Solo mostrar secciones que tienen elementos accesibles
 
-  // Añadido para depuración:
-  console.log("AppSidebar - Secciones de navegación filtradas:", filteredNavSections)
 
   //logo.png
 

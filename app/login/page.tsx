@@ -73,14 +73,8 @@ export default function LoginPage() {
     
     setLoading(true);
     
-    console.log("=== FRONTEND LOGIN DEBUG ===");
-    console.log("Email enviado:", email.trim());
-    console.log("Password enviado:", password.trim());
-    console.log("Longitud del password:", password.trim().length);
-    
     try {
       const loginData = { email: email.trim(), password: password.trim() };
-      console.log("Datos enviados a la API:", loginData);
       
       const response = await fetch("/api/auth/login", {
         method: "POST",
@@ -88,16 +82,11 @@ export default function LoginPage() {
         body: JSON.stringify(loginData),
       });
       
-      console.log("Status de respuesta:", response.status);
-      console.log("Response OK:", response.ok);
-
       if (response.ok) {
         const data = await response.json();
-        console.log("Respuesta del servidor:", data);
         
         // Verificar que la respuesta contenga información válida de usuario
         if (data.user && data.user.email) {
-          console.log("Login exitoso - usuario válido encontrado");
           toast({
             title: "¡Bienvenido!",
             description: "Inicio de sesión exitoso. Redirigiendo...",
@@ -106,11 +95,9 @@ export default function LoginPage() {
           
           // Esperar un poco para que la cookie se establezca antes de redirigir
           setTimeout(() => {
-            console.log("Redirigiendo al dashboard...");
             window.location.href = "/dashboard/titulares";
           }, 500);
         } else {
-          console.log("Login falló - respuesta inválida del servidor");
           toast({
             title: "Error de autenticación",
             description: "No se pudo procesar la solicitud. Intente nuevamente.",
@@ -119,7 +106,6 @@ export default function LoginPage() {
         }
       } else {
         const data = await response.json();
-        console.log("Error del servidor:", data);
         toast({
           title: "Acceso denegado",
           description: "Las credenciales ingresadas no son válidas. Revise su correo y contraseña.",
@@ -127,7 +113,6 @@ export default function LoginPage() {
         });
       }
     } catch (error) {
-      console.error("Login error:", error);
       toast({
         title: "Error de conexión",
         description: "No se pudo conectar al servidor. Intente nuevamente.",

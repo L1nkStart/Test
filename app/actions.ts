@@ -285,7 +285,6 @@ export async function createCase(prevState: any, formData: FormData) {
     const validatedFields = caseSchema.safeParse(data)
 
     if (!validatedFields.success) {
-        console.error("Validation errors:", validatedFields.error.flatten().fieldErrors)
         return {
             success: false,
             errors: validatedFields.error.flatten().fieldErrors,
@@ -443,7 +442,6 @@ export async function updateCase(prevState: any, formData: FormData) {
     const validatedFields = caseSchema.safeParse(data)
 
     if (!validatedFields.success) {
-        console.error("Validation errors:", validatedFields.error.flatten().fieldErrors)
         return {
             success: false,
             errors: validatedFields.error.flatten().fieldErrors,
@@ -813,9 +811,8 @@ export async function logToastAction(toastDetails: {
     path: string
 }) {
     try {
-        console.log("Toast logged successfully:", toastDetails)
     } catch (error) {
-        console.error("Error logging toast action:", error)
+        // Silent fail for toast logging
     }
 }
 

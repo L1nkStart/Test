@@ -44,7 +44,6 @@ export function UserDropdown() {
         })
       }
     } catch (error) {
-      console.error("Error fetching user data:", error)
       // Fallback data
       setUser({
         email: "admin@cgm.com",
@@ -80,7 +79,6 @@ export function UserDropdown() {
         await logoutAction()
       }, 1000)
     } catch (error) {
-      console.error("Error during logout:", error)
       toast({
         title: "Error al cerrar sesión",
         description: "Ocurrió un problema. Intente nuevamente.",

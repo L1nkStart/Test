@@ -42,7 +42,7 @@ export async function getFullUserSession(): Promise<UserSession | null> {
       isActive: user.isActive, // Incluye isActive
     }
   } catch (error) {
-    console.error("Error fetching full user session from DB:", error)
+    // Database error - silent fail
     return null
   }
 }
