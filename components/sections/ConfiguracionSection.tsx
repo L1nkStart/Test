@@ -22,8 +22,8 @@ export function ConfiguracionSection() {
       {/* Contenido placeholder */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Settings className="h-5 w-5" />
+          <CardTitle className="flex items-center gap-2 justify-center md:justify-normal text-xl md:text-4xl">
+            <Settings className="hidden md:block h-5 w-5" />
             Configuración del Sistema
           </CardTitle>
         </CardHeader>

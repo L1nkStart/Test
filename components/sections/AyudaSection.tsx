@@ -10,9 +10,7 @@ export function AyudaSection() {
       {/* Header de sección */}
       <section className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between border-b border-border pb-4">
         <div>
-          <h1 className="text-2xl font-semibold text-foreground">
-            Ayuda
-          </h1>
+          <h1 className="text-2xl font-semibold text-foreground">Ayuda</h1>
           <p className="mt-1 text-muted-foreground">
             Centro de ayuda y soporte técnico
           </p>
@@ -22,8 +20,8 @@ export function AyudaSection() {
       {/* Contenido placeholder */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <HelpCircle className="h-5 w-5" />
+          <CardTitle className="flex items-center gap-2 justify-center md:justify-normal text-xl md:text-4xl">
+            <HelpCircle className="hidden md:block h-5 w-5" />
             Centro de Ayuda
           </CardTitle>
         </CardHeader>

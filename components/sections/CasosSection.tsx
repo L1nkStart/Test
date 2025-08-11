@@ -10,9 +10,7 @@ export function CasosSection() {
       {/* Header de sección */}
       <section className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between border-b border-border pb-4">
         <div>
-          <h1 className="text-2xl font-semibold text-foreground">
-            Casos
-          </h1>
+          <h1 className="text-2xl font-semibold text-foreground">Casos</h1>
           <p className="mt-1 text-muted-foreground">
             Gestión de casos médicos y seguimientos
           </p>
@@ -22,8 +20,8 @@ export function CasosSection() {
       {/* Contenido placeholder */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <FileText className="h-5 w-5" />
+          <CardTitle className="flex items-center gap-2 justify-center md:justify-normal text-xl md:text-4xl">
+            <FileText className="hidden md:block h-5 w-5" />
             Casos Médicos
           </CardTitle>
         </CardHeader>

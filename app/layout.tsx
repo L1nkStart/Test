@@ -14,12 +14,12 @@ export const metadata: Metadata = {
 
 export default async function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+}: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="es" suppressHydrationWarning>
-      <body className={inter.className}>
+      <body
+        className={`${inter.className} min-h-screen w-full overflow-x-hidden`}
+      >
         <ThemeProvider>
           {children}
           <Toaster />
